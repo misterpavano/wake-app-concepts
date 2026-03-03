@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wake — Design Concepts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --aurora-bg: #050505;
+      --ember-bg: #0c0a08;
+      --ghost-bg: #f0f0ee;
+      --header-height: 60px;
+      --column-header-height: 48px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--aurora-bg);
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background: linear-gradient(180deg, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.9) 100%);
+      backdrop-filter: blur(20px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .page-header h1 {
+      font-size: 14px;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      text-transform: lowercase;
+      background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: aurora-text 4s linear infinite;
+    }
+
+    @keyframes aurora-text {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    .page-header .subtitle {
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.05em;
+    }
+
+    /* ========== SECTION INDICATOR ========== */
+    .section-indicator {
+      position: fixed;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .section-dot.active {
+      background: linear-gradient(135deg, #ff6b6b, #48dbfb);
+      box-shadow: 0 0 12px rgba(72, 219, 251, 0.5);
+    }
+
+    .section-dot:hover {
+      background: rgba(255,255,255,0.4);
+    }
+
+    /* ========== COLUMNS CONTAINER ========== */
+    .columns-container {
+      display: flex;
+      width: 100%;
+      padding-top: var(--header-height);
+    }
+
+    .column {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+    }
+
+    .column:not(:last-child) {
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .column.ghost:not(:last-child) {
+      border-right-color: rgba(0,0,0,0.08);
+    }
+
+    /* ========== COLUMN HEADERS ========== */
+    .column-header {
+      position: sticky;
+      top: var(--header-height);
+      height: var(--column-header-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+    }
+
+    .column.aurora .column-header {
+      background: rgba(5,5,5,0.9);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .column.ember .column-header {
+      background: rgba(12,10,8,0.9);
+      border-bottom: 1px solid rgba(255,180,100,0.1);
+    }
+
+    .column.ghost .column-header {
+      background: rgba(240,240,238,0.9);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .column-header h2 {
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+    }
+
+    .column.aurora .column-header h2 {
+      text-transform: lowercase;
+      font-weight: 200;
+    }
+
+    .column.ember .column-header h2 {
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+
+    .column.ghost .column-header h2 {
+      color: #1a1a1a;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+    }
+
+    .palette-chips {
+      display: flex;
+      gap: 6px;
+    }
+
+    .chip {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .column.ghost .chip {
+      border-color: rgba(0,0,0,0.1);
+    }
+
+    /* ========== SECTIONS ========== */
+    .section {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+    }
+
+    .column.aurora .section { background: var(--aurora-bg); }
+    .column.ember .section { background: var(--ember-bg); }
+    .column.ghost .section { background: var(--ghost-bg); }
+
+    .section-label {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0.3;
+    }
+
+    .column.ghost .section-label {
+      color: #1a1a1a;
+    }
+
+    /* ========== AURORA DESIGN ========== */
+    
+    /* Aurora Wake Button */
+    .aurora-orb {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .aurora-orb:hover {
+      transform: scale(1.05);
+    }
+
+    .aurora-orb-core {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #1a1a2e 0%, #0a0a0f 100%);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 
+        0 0 60px rgba(100, 100, 255, 0.15),
+        inset 0 0 40px rgba(0,0,0,0.8);
+    }
+
+    .aurora-orb-core::before {
+      content: '';
+      position: absolute;
+      inset: -50%;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        rgba(255, 107, 107, 0.4) 30deg,
+        rgba(254, 202, 87, 0.4) 60deg,
+        rgba(72, 219, 251, 0.4) 120deg,
+        rgba(255, 159, 243, 0.4) 180deg,
+        rgba(107, 255, 148, 0.4) 240deg,
+        rgba(255, 107, 107, 0.4) 300deg,
+        transparent 360deg
+      );
+      animation: aurora-rotate 8s linear infinite;
+      filter: blur(30px);
+    }
+
+    @keyframes aurora-rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .aurora-orb-highlight {
+      position: absolute;
+      top: 15%;
+      left: 20%;
+      width: 30%;
+      height: 20%;
+      background: radial-gradient(ellipse, rgba(255,255,255,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    /* Aurora Listening */
+    .aurora-listening {
+      width: 180px;
+      height: 180px;
+      position: relative;
+    }
+
+    .aurora-listening .aurora-orb-core::before {
+      animation: aurora-rotate 2s linear infinite;
+    }
+
+    .aurora-particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      animation: aurora-orbit 3s linear infinite;
+    }
+
+    .aurora-particle:nth-child(1) {
+      background: #ff6b6b;
+      animation-delay: 0s;
+    }
+    .aurora-particle:nth-child(2) {
+      background: #48dbfb;
+      animation-delay: -1s;
+    }
+    .aurora-particle:nth-child(3) {
+      background: #feca57;
+      animation-delay: -2s;
+    }
+
+    @keyframes aurora-orbit {
+      0% { 
+        transform: rotate(0deg) translateX(100px) rotate(0deg);
+        opacity: 0.8;
+      }
+      50% { opacity: 1; }
+      100% { 
+        transform: rotate(360deg) translateX(100px) rotate(-360deg);
+        opacity: 0.8;
+      }
+    }
+
+    /* Aurora Responding */
+    .aurora-responding {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .aurora-waveform {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 60px;
+    }
+
+    .aurora-wave-bar {
+      width: 3px;
+      border-radius: 2px;
+      animation: aurora-wave 1.2s ease-in-out infinite;
+    }
+
+    .aurora-wave-bar:nth-child(1) { background: #ff6b6b; animation-delay: 0s; }
+    .aurora-wave-bar:nth-child(2) { background: #feca57; animation-delay: 0.1s; }
+    .aurora-wave-bar:nth-child(3) { background: #48dbfb; animation-delay: 0.2s; }
+    .aurora-wave-bar:nth-child(4) { background: #ff9ff3; animation-delay: 0.3s; }
+    .aurora-wave-bar:nth-child(5) { background: #6bff94; animation-delay: 0.4s; }
+    .aurora-wave-bar:nth-child(6) { background: #ff6b6b; animation-delay: 0.5s; }
+    .aurora-wave-bar:nth-child(7) { background: #feca57; animation-delay: 0.6s; }
+    .aurora-wave-bar:nth-child(8) { background: #48dbfb; animation-delay: 0.7s; }
+    .aurora-wave-bar:nth-child(9) { background: #ff9ff3; animation-delay: 0.8s; }
+    .aurora-wave-bar:nth-child(10) { background: #6bff94; animation-delay: 0.9s; }
+    .aurora-wave-bar:nth-child(11) { background: #ff6b6b; animation-delay: 1.0s; }
+    .aurora-wave-bar:nth-child(12) { background: #feca57; animation-delay: 1.1s; }
+
+    @keyframes aurora-wave {
+      0%, 100% { height: 8px; opacity: 0.4; }
+      50% { height: 40px; opacity: 1; }
+    }
+
+    /* Aurora Memory Card */
+    .aurora-card {
+      width: 260px;
+      padding: 20px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      box-shadow: 
+        0 0 40px rgba(72, 219, 251, 0.05),
+        inset 0 0 20px rgba(255,255,255,0.02);
+    }
+
+    .aurora-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .aurora-card-icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #48dbfb, #ff9ff3);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 8px rgba(72, 219, 251, 0.5); }
+      50% { box-shadow: 0 0 16px rgba(255, 159, 243, 0.8); }
+    }
+
+    .aurora-card-label {
+      font-size: 9px;
+      text-transform: lowercase;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .aurora-card-content {
+      font-size: 13px;
+      font-weight: 200;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.7);
+      text-transform: lowercase;
+    }
+
+    .aurora-card-time {
+      margin-top: 16px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.25);
+      text-transform: lowercase;
+    }
+
+    /* Aurora Color + Type */
+    .aurora-type-section {
+      text-align: center;
+    }
+
+    .aurora-palette {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .aurora-swatch {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .aurora-type-sample {
+      font-size: 32px;
+      font-weight: 200;
+      text-transform: lowercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .aurora-type-info {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      text-transform: lowercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* ========== EMBER DESIGN ========== */
+    
+    /* Ember Wake Button */
+    .ember-orb {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .ember-orb:hover {
+      transform: scale(1.05);
+    }
+
+    .ember-orb-core {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #2a1810 0%, #0c0a08 70%);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 
+        0 0 80px rgba(255, 150, 50, 0.2),
+        0 0 40px rgba(255, 100, 50, 0.15),
+        inset 0 0 60px rgba(255, 120, 50, 0.1);
+    }
+
+    .ember-orb-core::before {
+      content: '';
+      position: absolute;
+      inset: 20%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 150, 80, 0.4) 0%, transparent 70%);
+      animation: ember-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes ember-pulse {
+      0%, 100% { 
+        transform: scale(0.8);
+        opacity: 0.5;
+      }
+      50% { 
+        transform: scale(1.2);
+        opacity: 0.8;
+      }
+    }
+
+    .ember-orb-glow {
+      position: absolute;
+      inset: -20%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 120, 50, 0.15) 0%, transparent 60%);
+      animation: ember-breathe 4s ease-in-out infinite;
+    }
+
+    @keyframes ember-breathe {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    /* Ember Listening */
+    .ember-listening {
+      width: 200px;
+      height: 200px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ember-listening .ember-orb {
+      width: 120px;
+      height: 120px;
+    }
+
+    .ember-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 150, 80, 0.3);
+      animation: ember-ring-expand 2s ease-out infinite;
+    }
+
+    .ember-ring:nth-child(1) { animation-delay: 0s; }
+    .ember-ring:nth-child(2) { animation-delay: 0.5s; }
+    .ember-ring:nth-child(3) { animation-delay: 1s; }
+
+    @keyframes ember-ring-expand {
+      0% {
+        width: 120px;
+        height: 120px;
+        opacity: 0.6;
+      }
+      100% {
+        width: 220px;
+        height: 220px;
+        opacity: 0;
+      }
+    }
+
+    /* Ember Responding */
+    .ember-responding {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .ember-waveform {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 60px;
+    }
+
+    .ember-wave-bar {
+      width: 4px;
+      background: linear-gradient(180deg, #ff9a56 0%, #ff6b35 100%);
+      border-radius: 2px;
+      animation: ember-wave 1.5s ease-in-out infinite;
+    }
+
+    .ember-wave-bar:nth-child(1) { animation-delay: 0s; }
+    .ember-wave-bar:nth-child(2) { animation-delay: 0.15s; }
+    .ember-wave-bar:nth-child(3) { animation-delay: 0.3s; }
+    .ember-wave-bar:nth-child(4) { animation-delay: 0.45s; }
+    .ember-wave-bar:nth-child(5) { animation-delay: 0.6s; }
+    .ember-wave-bar:nth-child(6) { animation-delay: 0.75s; }
+    .ember-wave-bar:nth-child(7) { animation-delay: 0.9s; }
+    .ember-wave-bar:nth-child(8) { animation-delay: 1.05s; }
+
+    @keyframes ember-wave {
+      0%, 100% { 
+        height: 12px;
+        opacity: 0.5;
+        box-shadow: 0 0 8px rgba(255, 107, 53, 0.3);
+      }
+      50% { 
+        height: 50px;
+        opacity: 1;
+        box-shadow: 0 0 20px rgba(255, 154, 86, 0.6);
+      }
+    }
+
+    /* Ember Memory Card */
+    .ember-card {
+      width: 260px;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(30, 20, 15, 0.9) 0%, rgba(20, 15, 10, 0.95) 100%);
+      border-radius: 12px;
+      border-left: 3px solid #ff9a56;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .ember-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .ember-card-icon {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background: #ff9a56;
+    }
+
+    .ember-card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #ff9a56;
+      font-weight: 500;
+    }
+
+    .ember-card-content {
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .ember-card-time {
+      margin-top: 16px;
+      font-size: 10px;
+      color: rgba(255, 154, 86, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Ember Color + Type */
+    .ember-type-section {
+      text-align: center;
+    }
+
+    .ember-palette {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .ember-swatch {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .ember-type-sample {
+      font-size: 32px;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 16px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .ember-type-info {
+      font-size: 11px;
+      color: rgba(255, 154, 86, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    /* ========== GHOST DESIGN ========== */
+    
+    /* Ghost Wake Button */
+    .ghost-orb {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .ghost-orb:hover {
+      transform: scale(1.02);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    }
+
+    .ghost-orb-core {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #ffffff 0%, #e8e8e6 100%);
+      box-shadow: 
+        0 10px 40px rgba(0,0,0,0.08),
+        0 2px 10px rgba(0,0,0,0.04),
+        inset 0 2px 4px rgba(255,255,255,0.8),
+        inset 0 -2px 4px rgba(0,0,0,0.02);
+      position: relative;
+    }
+
+    .ghost-orb-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40%;
+      height: 40%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,0,0,0.03) 0%, transparent 70%);
+    }
+
+    /* Ghost Listening */
+    .ghost-listening {
+      width: 200px;
+      height: 200px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ghost-listening .ghost-orb {
+      width: 120px;
+      height: 120px;
+    }
+
+    .ghost-ripple {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      animation: ghost-ripple-expand 3s ease-out infinite;
+    }
+
+    .ghost-ripple:nth-child(1) { animation-delay: 0s; }
+    .ghost-ripple:nth-child(2) { animation-delay: 1s; }
+    .ghost-ripple:nth-child(3) { animation-delay: 2s; }
+
+    @keyframes ghost-ripple-expand {
+      0% {
+        width: 120px;
+        height: 120px;
+        opacity: 0.4;
+      }
+      100% {
+        width: 280px;
+        height: 280px;
+        opacity: 0;
+      }
+    }
+
+    /* Ghost Responding */
+    .ghost-responding {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .ghost-waveform {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      height: 60px;
+    }
+
+    .ghost-wave-bar {
+      width: 2px;
+      background: #1a1a1a;
+      border-radius: 1px;
+      animation: ghost-wave 1.8s ease-in-out infinite;
+    }
+
+    .ghost-wave-bar:nth-child(1) { animation-delay: 0s; }
+    .ghost-wave-bar:nth-child(2) { animation-delay: 0.1s; }
+    .ghost-wave-bar:nth-child(3) { animation-delay: 0.2s; }
+    .ghost-wave-bar:nth-child(4) { animation-delay: 0.3s; }
+    .ghost-wave-bar:nth-child(5) { animation-delay: 0.4s; }
+    .ghost-wave-bar:nth-child(6) { animation-delay: 0.5s; }
+    .ghost-wave-bar:nth-child(7) { animation-delay: 0.6s; }
+    .ghost-wave-bar:nth-child(8) { animation-delay: 0.7s; }
+    .ghost-wave-bar:nth-child(9) { animation-delay: 0.8s; }
+    .ghost-wave-bar:nth-child(10) { animation-delay: 0.9s; }
+
+    @keyframes ghost-wave {
+      0%, 100% { 
+        height: 6px;
+        opacity: 0.3;
+      }
+      50% { 
+        height: 36px;
+        opacity: 0.8;
+      }
+    }
+
+    /* Ghost Memory Card */
+    .ghost-card {
+      width: 260px;
+      padding: 24px;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .ghost-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .ghost-card-icon {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #1a1a1a;
+    }
+
+    .ghost-card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: rgba(0,0,0,0.35);
+      font-weight: 400;
+    }
+
+    .ghost-card-content {
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: #1a1a1a;
+    }
+
+    .ghost-card-time {
+      margin-top: 20px;
+      font-size: 10px;
+      color: rgba(0,0,0,0.25);
+      letter-spacing: 0.1em;
+    }
+
+    /* Ghost Color + Type */
+    .ghost-type-section {
+      text-align: center;
+    }
+
+    .ghost-palette {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .ghost-swatch {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .ghost-type-sample {
+      font-size: 32px;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      margin-bottom: 16px;
+      color: #1a1a1a;
+    }
+
+    .ghost-type-info {
+      font-size: 11px;
+      color: rgba(0,0,0,0.35);
+      letter-spacing: 0.15em;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 900px) {
+      .columns-container {
+        flex-direction: column;
+      }
+      
+      .column {
+        border-right: none !important;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+      }
+
+      .column.ghost {
+        border-bottom-color: rgba(0,0,0,0.08);
+      }
+
+      .section-indicator {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>wake</h1>
+    <span class="subtitle">design concepts</span>
+  </header>
+
+  <nav class="section-indicator">
+    <div class="section-dot active" data-section="0" title="Wake Button"></div>
+    <div class="section-dot" data-section="1" title="Listening"></div>
+    <div class="section-dot" data-section="2" title="Responding"></div>
+    <div class="section-dot" data-section="3" title="Memory Card"></div>
+    <div class="section-dot" data-section="4" title="Color + Type"></div>
+  </nav>
+
+  <div class="columns-container">
+    
+    <!-- AURORA COLUMN -->
+    <div class="column aurora">
+      <div class="column-header">
+        <h2>aurora</h2>
+        <div class="palette-chips">
+          <div class="chip" style="background: #050505;"></div>
+          <div class="chip" style="background: linear-gradient(135deg, #ff6b6b, #48dbfb);"></div>
+          <div class="chip" style="background: #feca57;"></div>
+        </div>
+      </div>
+
+      <!-- Section 1: Wake Button -->
+      <div class="section" data-section="0">
+        <div class="aurora-orb">
+          <div class="aurora-orb-core">
+            <div class="aurora-orb-highlight"></div>
+          </div>
+        </div>
+        <span class="section-label">wake button</span>
+      </div>
+
+      <!-- Section 2: Listening -->
+      <div class="section" data-section="1">
+        <div class="aurora-listening">
+          <div class="aurora-particle"></div>
+          <div class="aurora-particle"></div>
+          <div class="aurora-particle"></div>
+          <div class="aurora-orb" style="width: 140px; height: 140px;">
+            <div class="aurora-orb-core" style="animation: none;">
+              <div class="aurora-orb-highlight"></div>
+            </div>
+          </div>
+        </div>
+        <span class="section-label">listening</span>
+      </div>
+
+      <!-- Section 3: Responding -->
+      <div class="section" data-section="2">
+        <div class="aurora-responding">
+          <div class="aurora-orb" style="width: 100px; height: 100px;">
+            <div class="aurora-orb-core">
+              <div class="aurora-orb-highlight"></div>
+            </div>
+          </div>
+          <div class="aurora-waveform">
+            <div class="aurora-wave-bar"></div>
+            <div class="aurora-wave-bar"></div>
+            <div class="aurora-wave-bar"></div>
+            <div class="aurora-wave-bar"></div>
+            <div class="aurora-wave-bar"></div>
+            <div class="aurora-wave-bar"></div>
+            <div class="aurora-wave-bar"></div>
+            <div class="aurora-wave-bar"></div>
+            <div class="aurora-wave-bar"></div>
+            <div class="aurora-wave-bar"></div>
+            <div class="aurora-wave-bar"></div>
+            <div class="aurora-wave-bar"></div>
+          </div>
+        </div>
+        <span class="section-label">responding</span>
+      </div>
+
+      <!-- Section 4: Memory Card -->
+      <div class="section" data-section="3">
+        <div class="aurora-card">
+          <div class="aurora-card-header">
+            <div class="aurora-card-icon"></div>
+            <span class="aurora-card-label">memory filed</span>
+          </div>
+          <div class="aurora-card-content">
+            remembered that you prefer morning meetings before 10am and dislike back-to-back calls
+          </div>
+          <div class="aurora-card-time">just now</div>
+        </div>
+        <span class="section-label">memory card</span>
+      </div>
+
+      <!-- Section 5: Color + Type -->
+      <div class="section" data-section="4">
+        <div class="aurora-type-section">
+          <div class="aurora-palette">
+            <div class="aurora-swatch" style="background: #050505;"></div>
+            <div class="aurora-swatch" style="background: #ff6b6b;"></div>
+            <div class="aurora-swatch" style="background: #feca57;"></div>
+            <div class="aurora-swatch" style="background: #48dbfb;"></div>
+            <div class="aurora-swatch" style="background: #ff9ff3;"></div>
+          </div>
+          <div class="aurora-type-sample">aurora</div>
+          <div class="aurora-type-info">inter · 200 weight · lowercase</div>
+        </div>
+        <span class="section-label">color + type</span>
+      </div>
+    </div>
+
+    <!-- EMBER COLUMN -->
+    <div class="column ember">
+      <div class="column-header">
+        <h2>EMBER</h2>
+        <div class="palette-chips">
+          <div class="chip" style="background: #0c0a08;"></div>
+          <div class="chip" style="background: #ff9a56;"></div>
+          <div class="chip" style="background: #ff6b35;"></div>
+        </div>
+      </div>
+
+      <!-- Section 1: Wake Button -->
+      <div class="section" data-section="0">
+        <div class="ember-orb">
+          <div class="ember-orb-glow"></div>
+          <div class="ember-orb-core"></div>
+        </div>
+        <span class="section-label">wake button</span>
+      </div>
+
+      <!-- Section 2: Listening -->
+      <div class="section" data-section="1">
+        <div class="ember-listening">
+          <div class="ember-ring"></div>
+          <div class="ember-ring"></div>
+          <div class="ember-ring"></div>
+          <div class="ember-orb">
+            <div class="ember-orb-glow"></div>
+            <div class="ember-orb-core"></div>
+          </div>
+        </div>
+        <span class="section-label">listening</span>
+      </div>
+
+      <!-- Section 3: Responding -->
+      <div class="section" data-section="2">
+        <div class="ember-responding">
+          <div class="ember-orb" style="width: 100px; height: 100px;">
+            <div class="ember-orb-glow"></div>
+            <div class="ember-orb-core"></div>
+          </div>
+          <div class="ember-waveform">
+            <div class="ember-wave-bar"></div>
+            <div class="ember-wave-bar"></div>
+            <div class="ember-wave-bar"></div>
+            <div class="ember-wave-bar"></div>
+            <div class="ember-wave-bar"></div>
+            <div class="ember-wave-bar"></div>
+            <div class="ember-wave-bar"></div>
+            <div class="ember-wave-bar"></div>
+          </div>
+        </div>
+        <span class="section-label">responding</span>
+      </div>
+
+      <!-- Section 4: Memory Card -->
+      <div class="section" data-section="3">
+        <div class="ember-card">
+          <div class="ember-card-header">
+            <div class="ember-card-icon"></div>
+            <span class="ember-card-label">Memory Filed</span>
+          </div>
+          <div class="ember-card-content">
+            Remembered that you prefer morning meetings before 10am and dislike back-to-back calls.
+          </div>
+          <div class="ember-card-time">Just Now</div>
+        </div>
+        <span class="section-label">memory card</span>
+      </div>
+
+      <!-- Section 5: Color + Type -->
+      <div class="section" data-section="4">
+        <div class="ember-type-section">
+          <div class="ember-palette">
+            <div class="ember-swatch" style="background: #0c0a08;"></div>
+            <div class="ember-swatch" style="background: #ff9a56;"></div>
+            <div class="ember-swatch" style="background: #ff6b35;"></div>
+            <div class="ember-swatch" style="background: #2a1810;"></div>
+          </div>
+          <div class="ember-type-sample">EMBER</div>
+          <div class="ember-type-info">INTER · 400 WEIGHT · UPPERCASE</div>
+        </div>
+        <span class="section-label">color + type</span>
+      </div>
+    </div>
+
+    <!-- GHOST COLUMN -->
+    <div class="column ghost">
+      <div class="column-header">
+        <h2>Ghost</h2>
+        <div class="palette-chips">
+          <div class="chip" style="background: #f0f0ee;"></div>
+          <div class="chip" style="background: #ffffff;"></div>
+          <div class="chip" style="background: #1a1a1a;"></div>
+        </div>
+      </div>
+
+      <!-- Section 1: Wake Button -->
+      <div class="section" data-section="0">
+        <div class="ghost-orb">
+          <div class="ghost-orb-core">
+            <div class="ghost-orb-inner"></div>
+          </div>
+        </div>
+        <span class="section-label" style="color: #1a1a1a;">wake button</span>
+      </div>
+
+      <!-- Section 2: Listening -->
+      <div class="section" data-section="1">
+        <div class="ghost-listening">
+          <div class="ghost-ripple"></div>
+          <div class="ghost-ripple"></div>
+          <div class="ghost-ripple"></div>
+          <div class="ghost-orb">
+            <div class="ghost-orb-core">
+              <div class="ghost-orb-inner"></div>
+            </div>
+          </div>
+        </div>
+        <span class="section-label" style="color: #1a1a1a;">listening</span>
+      </div>
+
+      <!-- Section 3: Responding -->
+      <div class="section" data-section="2">
+        <div class="ghost-responding">
+          <div class="ghost-orb" style="width: 100px; height: 100px;">
+            <div class="ghost-orb-core">
+              <div class="ghost-orb-inner"></div>
+            </div>
+          </div>
+          <div class="ghost-waveform">
+            <div class="ghost-wave-bar"></div>
+            <div class="ghost-wave-bar"></div>
+            <div class="ghost-wave-bar"></div>
+            <div class="ghost-wave-bar"></div>
+            <div class="ghost-wave-bar"></div>
+            <div class="ghost-wave-bar"></div>
+            <div class="ghost-wave-bar"></div>
+            <div class="ghost-wave-bar"></div>
+            <div class="ghost-wave-bar"></div>
+            <div class="ghost-wave-bar"></div>
+          </div>
+        </div>
+        <span class="section-label" style="color: #1a1a1a;">responding</span>
+      </div>
+
+      <!-- Section 4: Memory Card -->
+      <div class="section" data-section="3">
+        <div class="ghost-card">
+          <div class="ghost-card-header">
+            <div class="ghost-card-icon"></div>
+            <span class="ghost-card-label">Memory Filed</span>
+          </div>
+          <div class="ghost-card-content">
+            Remembered that you prefer morning meetings before 10am and dislike back-to-back calls.
+          </div>
+          <div class="ghost-card-time">Just now</div>
+        </div>
+        <span class="section-label" style="color: #1a1a1a;">memory card</span>
+      </div>
+
+      <!-- Section 5: Color + Type -->
+      <div class="section" data-section="4">
+        <div class="ghost-type-section">
+          <div class="ghost-palette">
+            <div class="ghost-swatch" style="background: #f0f0ee;"></div>
+            <div class="ghost-swatch" style="background: #ffffff;"></div>
+            <div class="ghost-swatch" style="background: #e0e0de;"></div>
+            <div class="ghost-swatch" style="background: #1a1a1a;"></div>
+          </div>
+          <div class="ghost-type-sample">Ghost</div>
+          <div class="ghost-type-info">Inter · 300 weight · Title Case</div>
+        </div>
+        <span class="section-label" style="color: #1a1a1a;">color + type</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Section indicator sync
+    const sections = document.querySelectorAll('.column.aurora .section');
+    const dots = document.querySelectorAll('.section-dot');
+    
+    function updateActiveSection() {
+      const scrollPosition = window.scrollY + window.innerHeight / 2;
+      
+      sections.forEach((section, index) => {
+        const sectionTop = section.offsetTop;
+        const sectionBottom = sectionTop + section.offsetHeight;
+        
+        if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+          dots.forEach(dot => dot.classList.remove('active'));
+          dots[index]?.classList.add('active');
+        }
+      });
+    }
+
+    // Click to scroll to section
+    dots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        const sectionIndex = parseInt(dot.dataset.section);
+        const targetSection = sections[sectionIndex];
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
+
+    // Throttled scroll listener
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          updateActiveSection();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+
+    // Initial state
+    updateActiveSection();
+  </script>
+</body>
+</html>
