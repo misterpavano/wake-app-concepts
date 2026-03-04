@@ -411,13 +411,13 @@
     let expanded   = false;
     let originRect = null; // Store original card position for collapse
 
-    // Content elements for staggered reveal
+    // Content elements for staggered reveal (premium timing)
     const contentElements = [
-      { el: 'overlay-emoji', delay: 0 },
-      { el: 'overlay-src', delay: 100 },
-      { el: 'overlay-title', delay: 200 },
-      { el: 'overlay-copy', delay: 350 },
-      { el: 'overlay-back', delay: 500 }
+      { el: 'overlay-emoji', delay: 50 },
+      { el: 'overlay-src', delay: 200 },
+      { el: 'overlay-title', delay: 350 },
+      { el: 'overlay-copy', delay: 500 },
+      { el: 'overlay-back', delay: 700 }
     ];
 
     // rAF-based stagger for precise timing
@@ -455,10 +455,14 @@
     }
 
     let expandAnim = null; // Track current WAAPI animation
+    let collapseAnim = null; // Track collapse animation
 
     function expandCard(def) {
       if (expanded) return;
       expanded = true;
+
+      // Cancel any lingering animations on the overlay
+      overlay.getAnimations().forEach(a => a.cancel());
 
       const card = document.getElementById(def.id);
       const stageRect = stage.getBoundingClientRect();
@@ -528,7 +532,7 @@
           transform: 'scale(1)'
         }
       ], {
-        duration: 480,
+        duration: 680,
         easing: EXPO_OUT,
         fill: 'forwards'
       });
@@ -551,7 +555,7 @@
         const c = document.getElementById(d.id);
         pauseFloat(d);
         if (d.id !== def.id) {
-          c.style.transition = `opacity 0.3s ease, transform 0.45s ${EASE}`;
+          c.style.transition = `opacity 0.35s ease, transform 0.5s ${EASE}`;
           c.style.opacity = '0';
           c.style.transform = 'scale(0.85) translateY(10px)';
         } else {
@@ -559,10 +563,10 @@
         }
       });
 
-      // Reveal content using rAF chain after animation completes
+      // Reveal content using rAF chain after animation progresses
       let revealStarted = false;
       function checkReveal(timestamp) {
-        if (!revealStarted && expandAnim && expandAnim.currentTime >= 400) {
+        if (!revealStarted && expandAnim && expandAnim.currentTime >= 550) {
           revealStarted = true;
           revealContent();
         } else if (!revealStarted) {
@@ -575,7 +579,7 @@
       let stackStartTime = null;
       function showStackTick(timestamp) {
         if (!stackStartTime) stackStartTime = timestamp;
-        if (timestamp - stackStartTime >= 350) {
+        if (timestamp - stackStartTime >= 450) {
           stackEl.classList.add('visible');
         } else {
           requestAnimationFrame(showStackTick);
@@ -586,16 +590,16 @@
 
     function collapseBack() {
       if (!expanded) return;
-      expanded = false;
+      // Don't set expanded = false here - wait until animation finishes
 
       stackEl.classList.remove('visible');
 
       // Hide content immediately
       hideContent();
 
-      // Cancel any running expand animation
+      // Cancel any running animations on overlay
+      overlay.getAnimations().forEach(a => a.cancel());
       if (expandAnim) {
-        expandAnim.cancel();
         expandAnim = null;
       }
 
@@ -606,8 +610,8 @@
       const currentRect = overlay.getBoundingClientRect();
       const stageRect = stage.getBoundingClientRect();
 
-      // WAAPI collapse: full → card rect, 420ms expo out
-      const collapseAnim = overlay.animate([
+      // WAAPI collapse: full → card rect, 580ms expo out (premium feel)
+      collapseAnim = overlay.animate([
         {
           left: (currentRect.left - stageRect.left) + 'px',
           top: (currentRect.top - stageRect.top) + 'px',
@@ -637,7 +641,7 @@
           transform: 'scale(1)'
         }
       ], {
-        duration: 420,
+        duration: 580,
         easing: EXPO_OUT,
         fill: 'forwards'
       });
@@ -646,10 +650,10 @@
       let cardsStartTime = null;
       function restoreCardsTick(timestamp) {
         if (!cardsStartTime) cardsStartTime = timestamp;
-        if (timestamp - cardsStartTime >= 150) {
+        if (timestamp - cardsStartTime >= 200) {
           cardDefs.forEach((def, i) => {
             const c = document.getElementById(def.id);
-            c.style.transition = `opacity 0.4s ease ${i * 0.04}s, transform 0.4s ${EASE} ${i * 0.04}s`;
+            c.style.transition = `opacity 0.45s ease ${i * 0.05}s, transform 0.45s ${EASE} ${i * 0.05}s`;
             c.style.opacity   = '1';
             c.style.transform = '';
           });
@@ -663,7 +667,7 @@
       let waveStartTime = null;
       function restoreWaveTick(timestamp) {
         if (!waveStartTime) waveStartTime = timestamp;
-        if (timestamp - waveStartTime >= 380) {
+        if (timestamp - waveStartTime >= 450) {
           wave.classList.remove('hidden');
         } else {
           requestAnimationFrame(restoreWaveTick);
@@ -672,20 +676,34 @@
       requestAnimationFrame(restoreWaveTick);
 
       collapseAnim.onfinish = () => {
-        // Reset overlay state
+        // Cancel and clean up all overlay animations
+        overlay.getAnimations().forEach(a => a.cancel());
+
+        // Fully reset overlay to initial invisible state
         overlay.style.transition = 'none';
+        overlay.style.left = '0';
+        overlay.style.top = '0';
+        overlay.style.width = '130px';
+        overlay.style.height = '120px';
         overlay.style.opacity = '0';
-        overlay.style.transform = '';
+        overlay.style.transform = 'none';
+        overlay.style.borderRadius = '18px';
         overlay.style.pointerEvents = 'none';
         overlay.classList.remove('animating');
 
-        // Resume floats (preserves animation position)
+        // Resume floats on all cards
         cardDefs.forEach(def => {
           const c = document.getElementById(def.id);
           c.style.transition = '';
+          c.style.opacity = '1';
+          c.style.transform = '';
           resumeFloat(def);
         });
+
+        // Clear state - NOW it's safe to accept new expand
         originRect = null;
+        collapseAnim = null;
+        expanded = false;
       };
     }
 
