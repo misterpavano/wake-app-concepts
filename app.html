@@ -898,11 +898,11 @@
           loadingCard.id = "response-card";
           loadingCard.style.cssText = "position:absolute;left:16px;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:24px;opacity:0;transition:opacity 0.4s ease;";
           loadingCard.innerHTML = "<div style=\"font-size:9px;font-family:Space Mono,monospace;color:rgba(255,255,255,0.2);letter-spacing:0.3em;text-transform:uppercase;text-align:center\">thinking...</div>";
-          document.getElementById("results-stage") ? document.getElementById("results-stage").appendChild(loadingCard) : cardsContainer.appendChild(loadingCard);
+          document.getElementById("results-screen").appendChild(loadingCard);
           requestAnimationFrame(() => loadingCard.style.opacity = "1");
 
           try {
-            const res = await fetch("http://localhost:8765/api/ask", {
+            const res = await fetch("/api/ask", {
               method: "POST",
               headers: {"Content-Type": "application/json"},
               body: JSON.stringify({
@@ -927,6 +927,7 @@
 
       clearInterval(waveformInterval);
       clearInterval(resultsWaveInterval);
+      const old = document.getElementById("response-card"); if(old) old.remove();
       resetCards();
       resultsWave.classList.remove('hidden');
       stackEl.classList.remove('visible');
