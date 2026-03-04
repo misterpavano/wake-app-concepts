@@ -149,14 +149,11 @@
       overflow: hidden;
     }
 
-    /* Content elements - hidden by default, revealed with stagger */
-    .overlay-hero-emoji,
-    .overlay-src,
-    .overlay-title,
-    .overlay-copy,
-    .overlay-back {
+    /* Content containers - fade in together */
+    .overlay-hero,
+    .overlay-body {
       opacity: 0;
-      transform: translateY(8px);
+      transition: opacity 0.3s ease;
     }
     .overlay-hero-emoji {
       position: relative;
@@ -183,11 +180,6 @@
     }
     .overlay-back:hover { color: rgba(255,255,255,0.45); }
 
-    /* Content reveal animation */
-    @keyframes content-reveal {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
 
     /* ── STACK ── */
     #card-stack {
@@ -411,47 +403,18 @@
     let expanded   = false;
     let originRect = null; // Store original card position for collapse
 
-    // Content elements for staggered reveal (premium timing)
-    const contentElements = [
-      { el: 'overlay-emoji', delay: 50 },
-      { el: 'overlay-src', delay: 200 },
-      { el: 'overlay-title', delay: 350 },
-      { el: 'overlay-copy', delay: 500 },
-      { el: 'overlay-back', delay: 700 }
-    ];
+    // Content containers for unified fade
+    const overlayHero = document.getElementById('overlay-hero');
+    const overlayBody = document.querySelector('.overlay-body');
 
-    // rAF-based stagger for precise timing
-    function revealContent() {
-      let startTime = null;
-      const durations = [0, 100, 200, 350, 500]; // ms delays for each element
-      const revealed = new Set();
-
-      function tick(timestamp) {
-        if (!startTime) startTime = timestamp;
-        const elapsed = timestamp - startTime;
-
-        contentElements.forEach(({ el, delay }, i) => {
-          if (!revealed.has(el) && elapsed >= delay) {
-            const elem = document.getElementById(el);
-            elem.style.animation = `content-reveal 0.35s ${EASE} forwards`;
-            revealed.add(el);
-          }
-        });
-
-        if (revealed.size < contentElements.length) {
-          requestAnimationFrame(tick);
-        }
-      }
-      requestAnimationFrame(tick);
+    function showContent() {
+      overlayHero.style.opacity = '1';
+      overlayBody.style.opacity = '1';
     }
 
     function hideContent() {
-      contentElements.forEach(({ el }) => {
-        const elem = document.getElementById(el);
-        elem.style.animation = 'none';
-        elem.style.opacity = '0';
-        elem.style.transform = 'translateY(8px)';
-      });
+      overlayHero.style.opacity = '0';
+      overlayBody.style.opacity = '0';
     }
 
     let expandAnim = null; // Track current WAAPI animation
@@ -485,8 +448,9 @@
       // Set card-specific background color
       overlay.style.setProperty('--card-color', CARD_COLORS[def.id] || 'rgba(255,255,255,0.05)');
 
-      // Hide content initially
+      // Hide content initially, reveal after 200ms
       hideContent();
+      setTimeout(showContent, 200);
 
       // Position overlay exactly over the card (no transition)
       overlay.style.transition = 'none';
@@ -563,18 +527,6 @@
         }
       });
 
-      // Reveal content using rAF chain after animation progresses
-      let revealStarted = false;
-      function checkReveal(timestamp) {
-        if (!revealStarted && expandAnim && expandAnim.currentTime >= 550) {
-          revealStarted = true;
-          revealContent();
-        } else if (!revealStarted) {
-          requestAnimationFrame(checkReveal);
-        }
-      }
-      requestAnimationFrame(checkReveal);
-
       // Show stack after cards fade (rAF-based timing)
       let stackStartTime = null;
       function showStackTick(timestamp) {
@@ -594,7 +546,9 @@
 
       stackEl.classList.remove('visible');
 
-      // Hide content immediately
+      // Fade out content fast (100ms)
+      overlayHero.style.transition = 'opacity 0.1s ease';
+      overlayBody.style.transition = 'opacity 0.1s ease';
       hideContent();
 
       // Cancel any running animations on overlay
@@ -690,6 +644,10 @@
         overlay.style.borderRadius = '18px';
         overlay.style.pointerEvents = 'none';
         overlay.classList.remove('animating');
+
+        // Reset content transitions back to normal
+        overlayHero.style.transition = 'opacity 0.3s ease';
+        overlayBody.style.transition = 'opacity 0.3s ease';
 
         // Resume floats on all cards
         cardDefs.forEach(def => {
