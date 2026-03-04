@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>pavano says</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #060606;
+      font-family: 'Space Grotesk', sans-serif;
+      overflow: hidden;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    body {
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    /* ── SCREENS ── */
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .screen.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ── IDLE ── */
+    #idle-screen { cursor: pointer; }
+    .idle-line {
+      width: 140px;
+      height: 1.5px;
+      background: rgba(245,240,235,0.08);
+      border-radius: 2px;
+      transition: background 0.3s, width 0.3s ease;
+    }
+    #idle-screen:active .idle-line {
+      background: rgba(245,240,235,0.2);
+      width: 160px;
+    }
+    .idle-hint {
+      margin-top: 24px;
+      font-size: 9px;
+      font-family: 'Space Mono', monospace;
+      color: rgba(245,240,235,0.1);
+      letter-spacing: 0.3em;
+      text-transform: lowercase;
+    }
+
+    /* ── LISTENING ── */
+    .waveform {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      height: 60px;
+    }
+    .wave-bar {
+      width: 2.5px;
+      background: rgba(245,240,235,0.8);
+      border-radius: 2px;
+      transition: height 0.08s ease;
+    }
+    .wave-bar.calm {
+      transition: height 0.3s ease;
+    }
+    .listen-text {
+      margin-top: 24px;
+      font-size: 9px;
+      font-family: 'Space Mono', monospace;
+      color: rgba(245,240,235,0.25);
+      letter-spacing: 0.25em;
+      text-transform: lowercase;
+    }
+
+    /* ── RESULTS ── */
+    #results-screen {
+      justify-content: flex-start;
+      padding-top: env(safe-area-inset-top);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: calc(16px + env(safe-area-inset-top));
+      right: 16px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 0.4s ease 0.6s;
+    }
+    #results-screen.active .close-btn { opacity: 1; }
+    .close-btn::before,
+    .close-btn::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 1px;
+      background: rgba(245,240,235,0.15);
+      transition: background 0.2s;
+    }
+    .close-btn::before { transform: rotate(45deg); }
+    .close-btn::after { transform: rotate(-45deg); }
+    .close-btn:active::before,
+    .close-btn:active::after { background: rgba(245,240,235,0.4); }
+
+    /* Center waveform */
+    .results-wave-wrap {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      z-index: 5;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .results-wave-wrap.hidden { opacity: 0; }
+    .results-waveform {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      height: 40px;
+    }
+    .rwave-bar {
+      width: 2px;
+      background: rgba(245,240,235,0.3);
+      border-radius: 2px;
+      transition: height 0.09s ease;
+    }
+    .results-signal-text {
+      font-size: 8px;
+      font-family: 'Space Mono', monospace;
+      color: rgba(245,240,235,0.1);
+      letter-spacing: 0.3em;
+      text-transform: lowercase;
+    }
+
+    /* ── CARDS ── */
+    .cards-container {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .result-card {
+      position: absolute;
+      width: 155px;
+      height: 130px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      overflow: hidden;
+      cursor: pointer;
+      opacity: 0;
+      z-index: 10;
+    }
+    .result-card:active {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    .card-thumb {
+      width: 100%;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      position: relative;
+    }
+    .card-thumb::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+    .card-body { padding: 10px 12px; }
+    .card-title {
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(245,240,235,0.7);
+      line-height: 1.4;
+      letter-spacing: 0.02em;
+    }
+    .card-src {
+      font-size: 8px;
+      color: rgba(245,240,235,0.2);
+      margin-top: 4px;
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.15em;
+    }
+
+    /* Float keyframes */
+    @keyframes float-a { 0%{transform:translateY(0) rotate(-0.5deg)} 25%{transform:translateY(-16px) rotate(-2deg)} 55%{transform:translateY(-8px) rotate(0.8deg)} 80%{transform:translateY(-18px) rotate(-1.5deg)} 100%{transform:translateY(0) rotate(-0.5deg)} }
+    @keyframes float-b { 0%{transform:translateY(0) rotate(0.5deg)} 35%{transform:translateY(-20px) rotate(2.2deg)} 65%{transform:translateY(-6px) rotate(-0.6deg)} 85%{transform:translateY(-14px) rotate(1.8deg)} 100%{transform:translateY(0) rotate(0.5deg)} }
+    @keyframes float-c { 0%{transform:translateY(0) rotate(0deg)} 30%{transform:translateY(-14px) rotate(1.5deg)} 60%{transform:translateY(-22px) rotate(-1deg)} 85%{transform:translateY(-8px) rotate(0.5deg)} 100%{transform:translateY(0) rotate(0deg)} }
+    @keyframes float-d { 0%{transform:translateY(0) rotate(-0.8deg)} 40%{transform:translateY(-18px) rotate(-2deg)} 70%{transform:translateY(-5px) rotate(1deg)} 90%{transform:translateY(-12px) rotate(-0.5deg)} 100%{transform:translateY(0) rotate(-0.8deg)} }
+    @keyframes float-e { 0%{transform:translateY(0) rotate(0.3deg)} 28%{transform:translateY(-12px) rotate(1.2deg)} 55%{transform:translateY(-20px) rotate(-0.8deg)} 80%{transform:translateY(-6px) rotate(1.5deg)} 100%{transform:translateY(0) rotate(0.3deg)} }
+    @keyframes float-f { 0%{transform:translateY(0) rotate(-0.4deg)} 45%{transform:translateY(-16px) rotate(-1.8deg)} 72%{transform:translateY(-8px) rotate(0.9deg)} 90%{transform:translateY(-19px) rotate(-1.2deg)} 100%{transform:translateY(0) rotate(-0.4deg)} }
+    @keyframes fi-in { 0%{opacity:0;transform:translateY(35px) scale(0.9)} 100%{opacity:1;transform:translateY(0) scale(1)} }
+
+    /* ── EXPAND OVERLAY ── */
+    #expand-overlay {
+      position: absolute;
+      z-index: 200;
+      background: #0d0d0d;
+      border-radius: 20px;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      --card-color: rgba(255,255,255,0.03);
+    }
+    #expand-overlay.animating,
+    #expand-overlay.open {
+      pointer-events: all;
+    }
+
+    .overlay-hero {
+      width: 100%;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      padding-top: calc(50px + env(safe-area-inset-top));
+      background: radial-gradient(ellipse 80% 60% at 50% 20%, var(--card-color), transparent 70%);
+    }
+    .overlay-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 50%, #0d0d0d 100%);
+    }
+    .overlay-hero::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 24px;
+      right: 24px;
+      height: 1px;
+      background: rgba(255,255,255,0.07);
+      z-index: 2;
+    }
+
+    .overlay-body {
+      flex: 1;
+      padding: 0 24px 24px;
+      padding-bottom: calc(24px + env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .overlay-hero,
+    .overlay-body {
+      opacity: 0;
+      transition: opacity 0.25s ease-in;
+    }
+    .overlay-src {
+      font-size: 11px;
+      font-family: 'Space Mono', monospace;
+      color: rgba(245,240,235,0.15);
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      position: absolute;
+      top: calc(50px + env(safe-area-inset-top));
+      left: 0;
+      right: 0;
+      text-align: center;
+      z-index: 3;
+    }
+    .overlay-title {
+      font-size: 20px;
+      font-weight: 300;
+      color: #f5f0eb;
+      line-height: 1.4;
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+      margin-top: 20px;
+    }
+    .overlay-copy {
+      font-size: 14px;
+      font-weight: 300;
+      color: rgba(245,240,235,0.38);
+      line-height: 1.8;
+      flex: 1;
+    }
+    .overlay-back {
+      margin-top: 20px;
+      font-size: 9px;
+      font-family: 'Space Mono', monospace;
+      color: rgba(245,240,235,0.18);
+      letter-spacing: 0.25em;
+      text-transform: lowercase;
+      cursor: pointer;
+      text-align: center;
+      padding: 12px 0;
+    }
+    .overlay-back:active { color: rgba(245,240,235,0.4); }
+
+    /* ── STACK ── */
+    #card-stack {
+      position: absolute;
+      bottom: calc(32px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 150;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #card-stack.visible { opacity: 1; pointer-events: all; }
+    .stack-cards {
+      position: relative;
+      width: 48px;
+      height: 36px;
+    }
+    .stack-layer {
+      position: absolute;
+      width: 44px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.04);
+      bottom: 0;
+    }
+    .stack-layer:nth-child(1) { transform: rotate(-3.5deg); left: 2px; }
+    .stack-layer:nth-child(2) { transform: rotate(2deg); left: 0px; bottom: 3px; background: rgba(255,255,255,0.03); }
+    .stack-layer:nth-child(3) { transform: rotate(-1deg); left: 1px; bottom: 6px; background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); }
+    #card-stack:active .stack-layer { border-color: rgba(255,255,255,0.15); }
+    .stack-label {
+      margin-top: 10px;
+      font-size: 7px;
+      font-family: 'Space Mono', monospace;
+      color: rgba(245,240,235,0.12);
+      letter-spacing: 0.25em;
+      text-transform: lowercase;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- IDLE -->
+  <div class="screen active" id="idle-screen">
+    <div class="idle-line"></div>
+    <div class="idle-hint">tap to wake</div>
+  </div>
+
+  <!-- LISTENING -->
+  <div class="screen" id="listen-screen">
+    <div class="waveform" id="waveform"></div>
+    <div class="listen-text" id="listen-text">listening...</div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="screen" id="results-screen">
+    <div class="close-btn" id="close-btn"></div>
+
+    <div class="results-wave-wrap" id="results-wave">
+      <div class="results-waveform" id="results-waveform"></div>
+      <div class="results-signal-text">signal active</div>
+    </div>
+
+    <div class="cards-container" id="cards-container">
+      <div class="result-card" id="card-a" data-title="Knicks trade deadline moves you need to know" data-src="ESPN · 2h ago" data-copy="New York made three moves before the deadline — shoring up the bench and adding a defensive anchor at the four. Here's the full breakdown of who's in, who's out, and what it means for the playoff run."></div>
+      <div class="result-card" id="card-b" data-title="OG Anunoby returns to practice" data-src="The Athletic · 4h ago" data-copy="OG participated in a full practice session Tuesday, the first time since his shoulder injury in January. The team is targeting a return within the next two weeks if there are no setbacks."></div>
+      <div class="result-card" id="card-c" data-title="KAT injury report: out tonight" data-src="NBA.com · 6h ago" data-copy="Karl-Anthony Towns has been ruled out for tonight's game against the Heat with a right knee contusion. He is listed as day-to-day and will be re-evaluated before Thursday's matchup."></div>
+      <div class="result-card" id="card-d" data-title="Why NY is the most interesting team right now" data-src="The Ringer · 1d ago" data-copy="The Knicks have the best net rating in the East over the last 20 games, a transformed defensive identity, and Jalen Brunson playing at an MVP level. This isn't a fluke — it's construction."></div>
+      <div class="result-card" id="card-e" data-title="Brunson drops 40 in comeback win" data-src="NY Post · 8h ago" data-copy="Down 14 in the third, Brunson took over — 19 points in the fourth quarter alone, including the go-ahead layup with 4.2 seconds left. The Garden went absolutely nuclear."></div>
+      <div class="result-card" id="card-f" data-title="Playoff picture: East standings" data-src="CBS Sports · 3h ago" data-copy="With 18 games left, New York sits third in the East — one game behind Boston, four ahead of Indiana. The tiebreaker over Cleveland is currently in the Knicks' favor."></div>
+    </div>
+
+    <!-- Expand overlay -->
+    <div id="expand-overlay">
+      <div class="overlay-hero" id="overlay-hero">
+        <div class="overlay-src" id="overlay-src"></div>
+      </div>
+      <div class="overlay-body">
+        <div class="overlay-title" id="overlay-title"></div>
+        <div class="overlay-copy" id="overlay-copy"></div>
+        <div class="overlay-back" id="overlay-back">← back</div>
+      </div>
+    </div>
+
+    <!-- Stack -->
+    <div id="card-stack">
+      <div class="stack-cards">
+        <div class="stack-layer"></div>
+        <div class="stack-layer"></div>
+        <div class="stack-layer"></div>
+      </div>
+      <div class="stack-label">5 results</div>
+    </div>
+  </div>
+
+  <script>
+    const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    const EXPO_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)';
+
+    // State
+    let currentScreen = 'idle';
+    let expanded = false;
+    let originRect = null;
+    let expandAnim = null;
+    let collapseAnim = null;
+    let waveformInterval = null;
+    let resultsWaveInterval = null;
+
+    // Elements
+    const idleScreen = document.getElementById('idle-screen');
+    const listenScreen = document.getElementById('listen-screen');
+    const resultsScreen = document.getElementById('results-screen');
+    const waveform = document.getElementById('waveform');
+    const listenText = document.getElementById('listen-text');
+    const resultsWave = document.getElementById('results-wave');
+    const resultsWaveform = document.getElementById('results-waveform');
+    const closeBtn = document.getElementById('close-btn');
+    const cardsContainer = document.getElementById('cards-container');
+    const overlay = document.getElementById('expand-overlay');
+    const overlayHero = document.getElementById('overlay-hero');
+    const overlayBody = document.querySelector('.overlay-body');
+    const stackEl = document.getElementById('card-stack');
+
+    // Card colors for overlay backgrounds
+    const CARD_COLORS = {
+      'card-a': 'rgba(59,130,246,0.08)',
+      'card-b': 'rgba(168,85,247,0.08)',
+      'card-c': 'rgba(234,179,8,0.08)',
+      'card-d': 'rgba(34,197,94,0.08)',
+      'card-e': 'rgba(239,68,68,0.08)',
+      'card-f': 'rgba(249,115,22,0.08)'
+    };
+
+    // Card definitions - positions for 375px viewport
+    const cardDefs = [
+      { id: 'card-a', left: 16,  top: 60,  float: 'float-a', dur: '6s',   floatDelay: '0s'   },
+      { id: 'card-b', left: 204, top: 120, float: 'float-b', dur: '7.2s', floatDelay: '0.5s' },
+      { id: 'card-c', left: 16,  top: 250, float: 'float-c', dur: '5.8s', floatDelay: '1s'   },
+      { id: 'card-d', left: 204, top: 320, float: 'float-d', dur: '6.6s', floatDelay: '0.3s' },
+      { id: 'card-e', left: 16,  top: 440, float: 'float-e', dur: '7.8s', floatDelay: '0.8s' },
+      { id: 'card-f', left: 204, top: 510, float: 'float-f', dur: '6.3s', floatDelay: '0.2s' },
+    ];
+
+    // Build card inner HTML
+    cardDefs.forEach(def => {
+      const c = document.getElementById(def.id);
+      const title = c.dataset.title;
+      const src = c.dataset.src;
+      c.innerHTML = `
+        <div class="card-thumb"></div>
+        <div class="card-body">
+          <div class="card-title">${title}</div>
+          <div class="card-src">${src}</div>
+        </div>`;
+      c.style.left = def.left + 'px';
+      c.style.top = def.top + 'px';
+    });
+
+    // Build listening waveform
+    for (let i = 0; i < 14; i++) {
+      const b = document.createElement('div');
+      b.className = 'wave-bar';
+      b.style.height = '4px';
+      waveform.appendChild(b);
+    }
+
+    // Build results waveform
+    for (let i = 0; i < 16; i++) {
+      const b = document.createElement('div');
+      b.className = 'rwave-bar';
+      b.style.height = '4px';
+      resultsWaveform.appendChild(b);
+    }
+
+    function animateWaveform(bars, maxHeight, envelope = true) {
+      bars.forEach((b, i) => {
+        const env = envelope ? Math.sin((i / (bars.length - 1)) * Math.PI) : 1;
+        b.style.height = Math.round((Math.random() * 0.7 + 0.3) * env * maxHeight + 4) + 'px';
+      });
+    }
+
+    function calmWaveform(bars) {
+      bars.forEach((b, i) => {
+        b.classList.add('calm');
+        const env = Math.sin((i / (bars.length - 1)) * Math.PI);
+        b.style.height = Math.round(env * 8 + 3) + 'px';
+      });
+    }
+
+    // Screen transitions
+    function showScreen(name) {
+      currentScreen = name;
+      idleScreen.classList.toggle('active', name === 'idle');
+      listenScreen.classList.toggle('active', name === 'listen');
+      resultsScreen.classList.toggle('active', name === 'results');
+    }
+
+    // Float animations
+    function startFloat(def) {
+      const c = document.getElementById(def.id);
+      if (c.style.animationPlayState === 'paused') {
+        c.style.animationPlayState = 'running';
+      } else {
+        c.style.animation = `${def.float} ${def.dur} ease-in-out ${def.floatDelay} infinite`;
+      }
+    }
+
+    function pauseFloat(def) {
+      document.getElementById(def.id).style.animationPlayState = 'paused';
+    }
+
+    function resumeFloat(def) {
+      document.getElementById(def.id).style.animationPlayState = 'running';
+    }
+
+    function flyInCards() {
+      cardDefs.forEach((def, i) => {
+        const c = document.getElementById(def.id);
+        c.style.animation = '';
+        c.style.opacity = '0';
+        c.style.transform = '';
+        setTimeout(() => {
+          c.style.animation = `fi-in 0.5s ${EASE} both`;
+          c.style.opacity = '1';
+          setTimeout(() => startFloat(def), 550);
+        }, 300 + i * 70);
+      });
+    }
+
+    function resetCards() {
+      cardDefs.forEach(def => {
+        const c = document.getElementById(def.id);
+        c.style.animation = '';
+        c.style.opacity = '0';
+        c.style.transform = '';
+        c.style.transition = '';
+      });
+    }
+
+    // Content show/hide
+    function showContent() {
+      overlayHero.style.opacity = '1';
+      overlayBody.style.opacity = '1';
+    }
+
+    function hideContent() {
+      overlayHero.style.opacity = '0';
+      overlayBody.style.opacity = '0';
+    }
+
+    // Expand card
+    function expandCard(def) {
+      if (expanded) return;
+      expanded = true;
+
+      overlay.getAnimations().forEach(a => a.cancel());
+
+      const card = document.getElementById(def.id);
+      const containerRect = cardsContainer.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+
+      originRect = {
+        left: cardRect.left - containerRect.left,
+        top: cardRect.top - containerRect.top,
+        width: cardRect.width,
+        height: cardRect.height
+      };
+
+      // Populate overlay
+      document.getElementById('overlay-src').textContent = card.dataset.src;
+      document.getElementById('overlay-title').textContent = card.dataset.title;
+      document.getElementById('overlay-copy').textContent = card.dataset.copy;
+      overlay.style.setProperty('--card-color', CARD_COLORS[def.id] || 'rgba(255,255,255,0.05)');
+
+      // Reset content visibility
+      overlayHero.style.transition = 'none';
+      overlayBody.style.transition = 'none';
+      hideContent();
+      overlayHero.offsetHeight;
+      overlayHero.style.transition = 'opacity 0.25s ease-in';
+      overlayBody.style.transition = 'opacity 0.25s ease-in';
+
+      // Position overlay at card
+      overlay.style.transition = 'none';
+      overlay.style.left = originRect.left + 'px';
+      overlay.style.top = originRect.top + 'px';
+      overlay.style.width = originRect.width + 'px';
+      overlay.style.height = originRect.height + 'px';
+      overlay.style.borderRadius = '18px';
+      overlay.style.opacity = '1';
+      overlay.style.transform = 'none';
+      overlay.style.pointerEvents = 'all';
+      overlay.classList.add('animating');
+      overlay.getBoundingClientRect();
+
+      // Animate expand
+      const fullW = window.innerWidth;
+      const fullH = window.innerHeight;
+      expandAnim = overlay.animate([
+        {
+          left: originRect.left + 'px',
+          top: originRect.top + 'px',
+          width: originRect.width + 'px',
+          height: originRect.height + 'px',
+          borderRadius: '18px'
+        },
+        {
+          left: '0px',
+          top: '0px',
+          width: fullW + 'px',
+          height: fullH + 'px',
+          borderRadius: '0px'
+        }
+      ], {
+        duration: 900,
+        easing: EXPO_OUT,
+        fill: 'forwards'
+      });
+
+      setTimeout(() => { if (expanded) showContent(); }, 640);
+
+      expandAnim.onfinish = () => {
+        overlay.style.left = '0px';
+        overlay.style.top = '0px';
+        overlay.style.width = fullW + 'px';
+        overlay.style.height = fullH + 'px';
+        overlay.style.borderRadius = '0px';
+        overlay.classList.remove('animating');
+        overlay.classList.add('open');
+      };
+
+      // Fade out cards
+      resultsWave.classList.add('hidden');
+      cardDefs.forEach(d => {
+        const c = document.getElementById(d.id);
+        pauseFloat(d);
+        if (d.id !== def.id) {
+          c.style.transition = `opacity 0.35s ease, transform 0.5s ${EASE}`;
+          c.style.opacity = '0';
+          c.style.transform = 'scale(0.85) translateY(10px)';
+        } else {
+          c.style.opacity = '0';
+        }
+      });
+
+      setTimeout(() => stackEl.classList.add('visible'), 450);
+    }
+
+    // Collapse back
+    function collapseBack() {
+      if (!expanded) return;
+
+      stackEl.classList.remove('visible');
+
+      overlayHero.style.transition = 'opacity 0.15s ease';
+      overlayBody.style.transition = 'opacity 0.15s ease';
+      hideContent();
+
+      setTimeout(() => {
+        overlay.getAnimations().forEach(a => a.cancel());
+        expandAnim = null;
+
+        overlay.classList.remove('open');
+        overlay.classList.add('animating');
+
+        const currentRect = overlay.getBoundingClientRect();
+        const containerRect = cardsContainer.getBoundingClientRect();
+
+        collapseAnim = overlay.animate([
+          {
+            left: (currentRect.left - containerRect.left) + 'px',
+            top: (currentRect.top - containerRect.top) + 'px',
+            width: currentRect.width + 'px',
+            height: currentRect.height + 'px',
+            borderRadius: '0px',
+            opacity: 1
+          },
+          {
+            left: originRect.left + 'px',
+            top: originRect.top + 'px',
+            width: originRect.width + 'px',
+            height: originRect.height + 'px',
+            borderRadius: '18px',
+            opacity: 1,
+            offset: 0.85
+          },
+          {
+            left: originRect.left + 'px',
+            top: originRect.top + 'px',
+            width: originRect.width + 'px',
+            height: originRect.height + 'px',
+            borderRadius: '18px',
+            opacity: 0
+          }
+        ], {
+          duration: 580,
+          easing: EXPO_OUT,
+          fill: 'forwards'
+        });
+
+        setTimeout(() => {
+          cardDefs.forEach((def, i) => {
+            const c = document.getElementById(def.id);
+            c.style.transition = `opacity 0.45s ease ${i * 0.05}s, transform 0.45s ${EASE} ${i * 0.05}s`;
+            c.style.opacity = '1';
+            c.style.transform = '';
+          });
+        }, 200);
+
+        setTimeout(() => resultsWave.classList.remove('hidden'), 450);
+
+        collapseAnim.onfinish = () => {
+          overlay.getAnimations().forEach(a => a.cancel());
+          overlay.style.transition = 'none';
+          overlay.style.left = '0';
+          overlay.style.top = '0';
+          overlay.style.width = '155px';
+          overlay.style.height = '130px';
+          overlay.style.opacity = '0';
+          overlay.style.transform = 'none';
+          overlay.style.borderRadius = '18px';
+          overlay.style.pointerEvents = 'none';
+          overlay.classList.remove('animating');
+
+          overlayHero.style.transition = 'opacity 0.25s ease-in';
+          overlayBody.style.transition = 'opacity 0.25s ease-in';
+
+          cardDefs.forEach(def => {
+            const c = document.getElementById(def.id);
+            c.style.transition = '';
+            c.style.opacity = '1';
+            c.style.transform = '';
+            resumeFloat(def);
+          });
+
+          originRect = null;
+          collapseAnim = null;
+          expanded = false;
+        };
+      }, 150);
+    }
+
+    // Flow: IDLE → LISTENING → THINKING → RESULTS
+    function startListening() {
+      showScreen('listen');
+      listenText.textContent = 'listening...';
+
+      const bars = waveform.querySelectorAll('.wave-bar');
+      bars.forEach(b => b.classList.remove('calm'));
+
+      waveformInterval = setInterval(() => animateWaveform(bars, 44), 90);
+
+      // After 2s: thinking state
+      setTimeout(() => {
+        listenText.textContent = 'thinking...';
+        clearInterval(waveformInterval);
+        calmWaveform(bars);
+
+        // After 0.5s thinking: show results
+        setTimeout(() => {
+          showScreen('results');
+          flyInCards();
+          resultsWave.classList.remove('hidden');
+          resultsWaveInterval = setInterval(() => {
+            animateWaveform(resultsWaveform.querySelectorAll('.rwave-bar'), 28);
+          }, 90);
+        }, 500);
+      }, 2000);
+    }
+
+    // Reset to idle
+    function resetToIdle() {
+      if (expanded) return;
+
+      clearInterval(waveformInterval);
+      clearInterval(resultsWaveInterval);
+      resetCards();
+      resultsWave.classList.remove('hidden');
+      stackEl.classList.remove('visible');
+
+      showScreen('idle');
+    }
+
+    // Event handlers
+    idleScreen.addEventListener('click', startListening);
+    closeBtn.addEventListener('click', resetToIdle);
+    document.getElementById('overlay-back').addEventListener('click', collapseBack);
+    stackEl.addEventListener('click', collapseBack);
+
+    cardDefs.forEach(def => {
+      document.getElementById(def.id).addEventListener('click', () => expandCard(def));
+    });
+  </script>
+</body>
+</html>
