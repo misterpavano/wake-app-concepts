@@ -312,7 +312,8 @@
       padding-bottom: calc(24px + env(safe-area-inset-bottom));
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .overlay-hero,
@@ -529,6 +530,7 @@
     // State
     let currentScreen = 'idle';
     let expanded = false;
+    let isResponseOverlay = false;
     let originRect = null;
     let expandAnim = null;
     let collapseAnim = null;
@@ -775,9 +777,208 @@
       setTimeout(() => stackEl.classList.add('visible'), 450);
     }
 
+    // Show response in full-screen overlay
+    function showResponseOverlay(responseText, chatName) {
+      if (expanded) return;
+      expanded = true;
+      isResponseOverlay = true;
+
+      overlay.getAnimations().forEach(a => a.cancel());
+
+      // Hide results waveform
+      resultsWave.classList.add('hidden');
+
+      // Populate overlay for response
+      const overlaySrc = document.getElementById('overlay-src');
+      overlaySrc.textContent = chatName.toUpperCase();
+      overlaySrc.style.letterSpacing = '0.4em';
+      overlaySrc.style.color = 'rgba(245,240,235,0.15)';
+      overlaySrc.style.fontSize = '11px';
+
+      document.getElementById('overlay-title').textContent = 'pavano says.';
+      const formatted = responseText.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
+      document.getElementById('overlay-copy').innerHTML = formatted;
+
+      overlay.style.setProperty('--card-color', 'rgba(255,255,255,0.03)');
+
+      // Reset content visibility
+      overlayHero.style.transition = 'none';
+      overlayBody.style.transition = 'none';
+      hideContent();
+      overlayHero.offsetHeight;
+      overlayHero.style.transition = 'opacity 0.25s ease-in';
+      overlayBody.style.transition = 'opacity 0.25s ease-in';
+
+      // Set origin rect for center of screen
+      const startW = 150;
+      const startH = 120;
+      const fullW = window.innerWidth;
+      const fullH = window.innerHeight;
+
+      originRect = {
+        left: (fullW - startW) / 2,
+        top: (fullH - startH) / 2,
+        width: startW,
+        height: startH
+      };
+
+      // Position overlay at center
+      overlay.style.transition = 'none';
+      overlay.style.left = originRect.left + 'px';
+      overlay.style.top = originRect.top + 'px';
+      overlay.style.width = originRect.width + 'px';
+      overlay.style.height = originRect.height + 'px';
+      overlay.style.borderRadius = '24px';
+      overlay.style.opacity = '0';
+      overlay.style.transform = 'none';
+      overlay.style.pointerEvents = 'all';
+      overlay.classList.add('animating');
+      overlay.getBoundingClientRect();
+
+      // Animate expand from center to full screen
+      expandAnim = overlay.animate([
+        {
+          left: originRect.left + 'px',
+          top: originRect.top + 'px',
+          width: originRect.width + 'px',
+          height: originRect.height + 'px',
+          borderRadius: '24px',
+          opacity: 0
+        },
+        {
+          left: '0px',
+          top: '0px',
+          width: fullW + 'px',
+          height: fullH + 'px',
+          borderRadius: '50px',
+          opacity: 1
+        }
+      ], {
+        duration: 900,
+        easing: EXPO_OUT,
+        fill: 'forwards'
+      });
+
+      setTimeout(() => { if (expanded) showContent(); }, 640);
+
+      expandAnim.onfinish = () => {
+        overlay.style.left = '0px';
+        overlay.style.top = '0px';
+        overlay.style.width = fullW + 'px';
+        overlay.style.height = fullH + 'px';
+        overlay.style.borderRadius = '50px';
+        overlay.style.opacity = '1';
+        overlay.classList.remove('animating');
+        overlay.classList.add('open');
+      };
+    }
+
+    // Collapse response overlay back to idle
+    function collapseResponseOverlay() {
+      overlayHero.style.transition = 'opacity 0.15s ease';
+      overlayBody.style.transition = 'opacity 0.15s ease';
+      hideContent();
+
+      setTimeout(() => {
+        overlay.getAnimations().forEach(a => a.cancel());
+        expandAnim = null;
+
+        overlay.classList.remove('open');
+        overlay.classList.add('animating');
+
+        const fullW = window.innerWidth;
+        const fullH = window.innerHeight;
+        const startW = 150;
+        const startH = 120;
+        const centerRect = {
+          left: (fullW - startW) / 2,
+          top: (fullH - startH) / 2,
+          width: startW,
+          height: startH
+        };
+
+        collapseAnim = overlay.animate([
+          {
+            left: '0px',
+            top: '0px',
+            width: fullW + 'px',
+            height: fullH + 'px',
+            borderRadius: '50px',
+            opacity: 1
+          },
+          {
+            left: centerRect.left + 'px',
+            top: centerRect.top + 'px',
+            width: centerRect.width + 'px',
+            height: centerRect.height + 'px',
+            borderRadius: '24px',
+            opacity: 1,
+            offset: 0.85
+          },
+          {
+            left: centerRect.left + 'px',
+            top: centerRect.top + 'px',
+            width: centerRect.width + 'px',
+            height: centerRect.height + 'px',
+            borderRadius: '24px',
+            opacity: 0
+          }
+        ], {
+          duration: 580,
+          easing: EXPO_OUT,
+          fill: 'forwards'
+        });
+
+        collapseAnim.onfinish = () => {
+          overlay.getAnimations().forEach(a => a.cancel());
+          overlay.style.transition = 'none';
+          overlay.style.left = '0';
+          overlay.style.top = '0';
+          overlay.style.width = '155px';
+          overlay.style.height = '130px';
+          overlay.style.opacity = '0';
+          overlay.style.transform = 'none';
+          overlay.style.borderRadius = '18px';
+          overlay.style.pointerEvents = 'none';
+          overlay.classList.remove('animating');
+
+          overlayHero.style.transition = 'opacity 0.25s ease-in';
+          overlayBody.style.transition = 'opacity 0.25s ease-in';
+
+          // Reset overlay-src styles
+          const overlaySrc = document.getElementById('overlay-src');
+          overlaySrc.style.letterSpacing = '';
+          overlaySrc.style.color = '';
+          overlaySrc.style.fontSize = '';
+
+          originRect = null;
+          collapseAnim = null;
+          expanded = false;
+          isResponseOverlay = false;
+
+          // Reset to idle
+          clearInterval(resultsWaveInterval);
+          resultsWave.classList.remove('hidden');
+          stackEl.classList.remove('visible');
+
+          // Reset signal text
+          const signalText = resultsWave.querySelector('.results-signal-text');
+          if (signalText) signalText.textContent = 'signal active';
+
+          showScreen('idle');
+        };
+      }, 150);
+    }
+
     // Collapse back
     function collapseBack() {
       if (!expanded) return;
+
+      // Handle response overlay differently
+      if (isResponseOverlay) {
+        collapseResponseOverlay();
+        return;
+      }
 
       stackEl.classList.remove('visible');
 
@@ -885,21 +1086,18 @@
         clearInterval(waveformInterval);
         calmWaveform(bars);
 
-        // After 0.5s thinking: show results
+        // After 0.5s thinking: show results screen with waveform
         setTimeout(async () => {
           showScreen('results');
           resultsWave.classList.remove('hidden');
+
+          // Update signal text to "thinking..."
+          const signalText = resultsWave.querySelector('.results-signal-text');
+          signalText.textContent = 'thinking...';
+
           resultsWaveInterval = setInterval(() => {
             animateWaveform(resultsWaveform.querySelectorAll('.rwave-bar'), 28);
           }, 90);
-
-          // Show loading state
-          const loadingCard = document.createElement("div");
-          loadingCard.id = "response-card";
-          loadingCard.style.cssText = "position:absolute;left:16px;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:24px;opacity:0;transition:opacity 0.4s ease;";
-          loadingCard.innerHTML = "<div style=\"font-size:9px;font-family:Space Mono,monospace;color:rgba(255,255,255,0.2);letter-spacing:0.3em;text-transform:uppercase;text-align:center\">thinking...</div>";
-          document.getElementById("results-screen").appendChild(loadingCard);
-          requestAnimationFrame(() => loadingCard.style.opacity = "1");
 
           try {
             const res = await fetch("/api/ask", {
@@ -913,10 +1111,15 @@
             });
             const data = await res.json();
             const text = res.ok ? data.response : (data.detail || data.error || "Something went wrong");
-            const formatted = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
-            loadingCard.innerHTML = "<div style=\"font-size:13px;font-weight:300;color:rgba(255,255,255,0.88);line-height:1.8;\">" + formatted + "</div>";
+
+            // Stop waveform animation
+            clearInterval(resultsWaveInterval);
+
+            // Show response in fullscreen overlay
+            showResponseOverlay(text, selectedChatName);
           } catch (e) {
-            loadingCard.innerHTML = "<div style=\"font-size:11px;color:rgba(255,255,255,0.4);text-align:center\">Could not reach server.<br>Run: bash ~/pavano-says/start.sh</div>";
+            clearInterval(resultsWaveInterval);
+            showResponseOverlay("Could not reach server.\n\nRun: bash ~/pavano-says/start.sh", selectedChatName);
           }
         }, 500);
       }, 2000);
@@ -924,14 +1127,22 @@
 
     // Reset to idle
     function resetToIdle() {
+      // If response overlay is expanded, collapse it first (which will reset to idle)
+      if (expanded && isResponseOverlay) {
+        collapseResponseOverlay();
+        return;
+      }
       if (expanded) return;
 
       clearInterval(waveformInterval);
       clearInterval(resultsWaveInterval);
-      const old = document.getElementById("response-card"); if(old) old.remove();
       resetCards();
       resultsWave.classList.remove('hidden');
       stackEl.classList.remove('visible');
+
+      // Reset signal text
+      const signalText = resultsWave.querySelector('.results-signal-text');
+      if (signalText) signalText.textContent = 'signal active';
 
       showScreen('idle');
     }
