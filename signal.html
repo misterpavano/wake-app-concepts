@@ -257,19 +257,19 @@
     }
 
     /* Float keyframes per card */
-    @keyframes float-a { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-    @keyframes float-b { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
-    @keyframes float-c { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-    @keyframes float-d { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
-    @keyframes float-e { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-    @keyframes float-f { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+    @keyframes float-a { 0%{transform:translateY(0) rotate(-0.5deg)} 25%{transform:translateY(-16px) rotate(-2deg)} 55%{transform:translateY(-8px) rotate(0.8deg)} 80%{transform:translateY(-18px) rotate(-1.5deg)} 100%{transform:translateY(0) rotate(-0.5deg)} }
+    @keyframes float-b { 0%{transform:translateY(0) rotate(0.5deg)} 35%{transform:translateY(-20px) rotate(2.2deg)} 65%{transform:translateY(-6px) rotate(-0.6deg)} 85%{transform:translateY(-14px) rotate(1.8deg)} 100%{transform:translateY(0) rotate(0.5deg)} }
+    @keyframes float-c { 0%{transform:translateY(0) rotate(0deg)} 30%{transform:translateY(-14px) rotate(1.5deg)} 60%{transform:translateY(-22px) rotate(-1deg)} 85%{transform:translateY(-8px) rotate(0.5deg)} 100%{transform:translateY(0) rotate(0deg)} }
+    @keyframes float-d { 0%{transform:translateY(0) rotate(-0.8deg)} 40%{transform:translateY(-18px) rotate(-2deg)} 70%{transform:translateY(-5px) rotate(1deg)} 90%{transform:translateY(-12px) rotate(-0.5deg)} 100%{transform:translateY(0) rotate(-0.8deg)} }
+    @keyframes float-e { 0%{transform:translateY(0) rotate(0.3deg)} 28%{transform:translateY(-12px) rotate(1.2deg)} 55%{transform:translateY(-20px) rotate(-0.8deg)} 80%{transform:translateY(-6px) rotate(1.5deg)} 100%{transform:translateY(0) rotate(0.3deg)} }
+    @keyframes float-f { 0%{transform:translateY(0) rotate(-0.4deg)} 45%{transform:translateY(-16px) rotate(-1.8deg)} 72%{transform:translateY(-8px) rotate(0.9deg)} 90%{transform:translateY(-19px) rotate(-1.2deg)} 100%{transform:translateY(0) rotate(-0.4deg)} }
 
-    .card-a.visible { animation: fi-left  0.45s cubic-bezier(0.22,1,0.36,1) 0s    both, float-a 5s   ease-in-out 0.45s infinite; }
-    .card-b.visible { animation: fi-right 0.45s cubic-bezier(0.22,1,0.36,1) 0.08s both, float-b 5.3s ease-in-out 0.53s infinite; }
-    .card-c.visible { animation: fi-left  0.45s cubic-bezier(0.22,1,0.36,1) 0.16s both, float-c 4.8s ease-in-out 0.61s infinite; }
-    .card-d.visible { animation: fi-right 0.45s cubic-bezier(0.22,1,0.36,1) 0.24s both, float-d 5.1s ease-in-out 0.69s infinite; }
-    .card-e.visible { animation: fi-left  0.45s cubic-bezier(0.22,1,0.36,1) 0.32s both, float-e 5.4s ease-in-out 0.77s infinite; }
-    .card-f.visible { animation: fi-right 0.45s cubic-bezier(0.22,1,0.36,1) 0.40s both, float-f 4.9s ease-in-out 0.85s infinite; }
+    .card-a.visible { animation: fi-left  0.55s cubic-bezier(0.22,1,0.36,1) 0s    both, float-a 6s   ease-in-out 0.55s infinite; }
+    .card-b.visible { animation: fi-right 0.55s cubic-bezier(0.22,1,0.36,1) 0.1s  both, float-b 7.2s ease-in-out 0.65s infinite; }
+    .card-c.visible { animation: fi-left  0.55s cubic-bezier(0.22,1,0.36,1) 0.2s  both, float-c 5.8s ease-in-out 0.75s infinite; }
+    .card-d.visible { animation: fi-right 0.55s cubic-bezier(0.22,1,0.36,1) 0.3s  both, float-d 6.6s ease-in-out 0.85s infinite; }
+    .card-e.visible { animation: fi-left  0.55s cubic-bezier(0.22,1,0.36,1) 0.4s  both, float-e 7.8s ease-in-out 0.95s infinite; }
+    .card-f.visible { animation: fi-right 0.55s cubic-bezier(0.22,1,0.36,1) 0.5s  both, float-f 6.3s ease-in-out 1.05s infinite; }
   </style>
 </head>
 <body>
