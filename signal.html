@@ -28,16 +28,8 @@
       margin-bottom: 40px;
       user-select: none;
     }
-    .stages {
-      display: flex;
-      gap: 60px;
-      align-items: flex-start;
-    }
-    .stage-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    .stages { display: flex; gap: 60px; align-items: flex-start; }
+    .stage-wrapper { display: flex; flex-direction: column; align-items: center; }
     .phone-frame {
       width: 310px;
       height: 620px;
@@ -47,216 +39,174 @@
       position: relative;
       background: #0a0a0a;
     }
-    .stage-label {
-      margin-top: 18px;
-      text-align: center;
-    }
-    .stage-label h3 {
-      font-size: 11px;
-      font-weight: 400;
-      color: #444;
-      letter-spacing: 0.2em;
-      text-transform: lowercase;
-    }
-    .stage-label p {
-      font-size: 10px;
-      font-weight: 300;
-      color: #2a2a2a;
-      margin-top: 4px;
-    }
-    .arrow {
-      display: flex;
-      align-items: center;
-      color: #1e1e1e;
-      font-size: 18px;
-      margin-top: -300px;
-      user-select: none;
-    }
+    .stage-label { margin-top: 18px; text-align: center; }
+    .stage-label h3 { font-size: 11px; font-weight: 400; color: #444; letter-spacing: 0.2em; text-transform: lowercase; }
+    .stage-label p  { font-size: 10px; font-weight: 300; color: #2a2a2a; margin-top: 4px; }
+    .arrow { display: flex; align-items: center; color: #1e1e1e; font-size: 18px; margin-top: -300px; user-select: none; }
 
     /* ── IDLE ── */
     .stage-idle {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       cursor: pointer;
     }
-    .idle-line {
-      width: 180px;
-      height: 1.5px;
-      background: #1e1e1e;
-      border-radius: 2px;
-      transition: background 0.3s;
-    }
+    .idle-line { width: 180px; height: 1.5px; background: #1e1e1e; border-radius: 2px; transition: background 0.3s; }
     .stage-idle:hover .idle-line { background: #333; }
-    .idle-hint {
-      margin-top: 24px;
-      font-size: 9px;
-      font-family: 'Space Mono', monospace;
-      color: #222;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-    }
+    .idle-hint { margin-top: 24px; font-size: 9px; font-family: 'Space Mono', monospace; color: #222; letter-spacing: 0.3em; text-transform: uppercase; }
 
     /* ── LISTENING ── */
     .stage-active {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
-    .waveform {
-      display: flex;
-      gap: 5px;
-      align-items: center;
-      height: 56px;
-    }
-    .wave-bar {
-      width: 2.5px;
-      background: #ffffff;
-      border-radius: 2px;
-      transition: height 0.08s ease;
-    }
-    .active-text {
-      margin-top: 22px;
-      font-size: 9px;
-      font-family: 'Space Mono', monospace;
-      color: #555;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-    }
+    .waveform { display: flex; gap: 5px; align-items: center; height: 56px; }
+    .wave-bar { width: 2.5px; background: #ffffff; border-radius: 2px; transition: height 0.08s ease; }
+    .active-text { margin-top: 22px; font-size: 9px; font-family: 'Space Mono', monospace; color: #555; letter-spacing: 0.25em; text-transform: uppercase; }
 
-    /* ── RESULTS ── */
+    /* ── RESULTS STAGE ── */
     .stage-results {
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       position: relative;
       overflow: hidden;
+      background: #0a0a0a;
     }
 
-    /* Waveform + label, centered */
+    /* Center waveform */
     .results-wave-wrap {
       position: absolute;
-      left: 50%;
-      top: 50%;
+      left: 50%; top: 50%;
       transform: translate(-50%, -50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      z-index: 10;
-      pointer-events: none;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      z-index: 5; pointer-events: none;
+      transition: opacity 0.4s;
     }
-    .results-waveform {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-      height: 40px;
-    }
-    .rwave-bar {
-      width: 2px;
-      background: rgba(255,255,255,0.7);
-      border-radius: 2px;
-      transition: height 0.08s ease;
-    }
-    .results-signal-text {
-      font-size: 8px;
-      font-family: 'Space Mono', monospace;
-      color: rgba(255,255,255,0.25);
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-    }
+    .results-wave-wrap.hidden { opacity: 0; }
+    .results-waveform { display: flex; gap: 4px; align-items: center; height: 40px; }
+    .rwave-bar { width: 2px; background: rgba(255,255,255,0.6); border-radius: 2px; transition: height 0.09s ease; }
+    .results-signal-text { font-size: 8px; font-family: 'Space Mono', monospace; color: rgba(255,255,255,0.2); letter-spacing: 0.3em; text-transform: uppercase; }
 
-    /* Cards — square, staggered left/right */
+    /* ── CARDS ── */
     .result-card {
       position: absolute;
-      width: 130px;
-      height: 120px;
+      width: 130px; height: 120px;
       border-radius: 18px;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.09);
       overflow: hidden;
       cursor: pointer;
       opacity: 0;
-      transition: background 0.2s, border-color 0.2s, transform 0.15s;
       user-select: none;
+      /* transition used for expand/collapse; animation handles floating */
+      will-change: transform, opacity, width, height, border-radius, top, left;
     }
-    .result-card:hover {
+    .result-card:hover:not(.expanded):not(.stacked) {
       background: rgba(255,255,255,0.09);
       border-color: rgba(255,255,255,0.2);
     }
-    .result-card.selected {
-      background: rgba(255,255,255,0.12);
-      border-color: rgba(255,255,255,0.35);
-    }
-    .result-card:active { transform: scale(0.96) !important; }
 
-    /* Card inner */
     .card-thumb {
-      width: 100%;
-      height: 58px;
+      width: 100%; height: 58px;
       background: rgba(255,255,255,0.06);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
+      transition: height 0.5s cubic-bezier(0.22,1,0.36,1);
+      flex-shrink: 0;
     }
-    .card-thumb-icon {
-      font-size: 20px;
-      opacity: 0.25;
-    }
+    .card-thumb-icon { font-size: 20px; opacity: 0.25; }
     .card-body {
       padding: 8px 10px 6px;
+      transition: padding 0.5s cubic-bezier(0.22,1,0.36,1);
     }
     .card-title {
-      font-size: 10px;
-      font-weight: 400;
-      color: rgba(255,255,255,0.75);
+      font-size: 10px; font-weight: 400; color: rgba(255,255,255,0.75);
       line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      transition: font-size 0.5s cubic-bezier(0.22,1,0.36,1), -webkit-line-clamp 0.5s;
     }
     .card-src {
-      font-size: 8px;
-      font-weight: 300;
-      color: rgba(255,255,255,0.25);
-      margin-top: 3px;
-      font-family: 'Space Mono', monospace;
-      letter-spacing: 0.05em;
+      font-size: 8px; font-weight: 300; color: rgba(255,255,255,0.25);
+      margin-top: 3px; font-family: 'Space Mono', monospace; letter-spacing: 0.05em;
+      transition: opacity 0.3s;
     }
 
-    /*
-      Layout (left col x=18, right col x=162):
-      card A: left,  top ~40
-      card B: right, top ~110
-      card C: left,  top ~240
-      card D: right, top ~320
-      card E: left,  top ~430
-      card F: right, top ~480
-    */
-    .card-a { left: 18px;  top: 38px; }
-    .card-b { left: 162px; top: 108px; }
-    .card-c { left: 18px;  top: 238px; }
-    .card-d { left: 162px; top: 320px; }
-    .card-e { left: 18px;  top: 430px; }
-    .card-f { left: 162px; top: 478px; }
-
-    /* Fly-in keyframes (come from below, fade in) */
-    @keyframes fi-left {
-      0%   { opacity:0; transform: translateY(30px) scale(0.92); }
-      100% { opacity:1; transform: translateY(0) scale(1); }
+    /* Expanded detail content (hidden by default) */
+    .card-detail {
+      display: none;
+      padding: 0 20px 20px;
+      opacity: 0;
+      transition: opacity 0.3s 0.3s;
     }
-    @keyframes fi-right {
-      0%   { opacity:0; transform: translateY(30px) scale(0.92); }
-      100% { opacity:1; transform: translateY(0) scale(1); }
+    .card-detail p {
+      font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.5);
+      line-height: 1.7; margin-top: 12px;
+    }
+    .card-close {
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 8px; font-family: 'Space Mono', monospace;
+      color: rgba(255,255,255,0.25); letter-spacing: 0.2em; text-transform: uppercase;
+      cursor: pointer;
+    }
+    .card-close:hover { color: rgba(255,255,255,0.5); }
+
+    /* EXPANDED state */
+    .result-card.expanded {
+      /* JS sets exact px values */
+      z-index: 100;
+      border-radius: 0px;
+      background: #111 !important;
+      border-color: transparent !important;
+      cursor: default;
+    }
+    .result-card.expanded .card-thumb { height: 200px; }
+    .result-card.expanded .card-body { padding: 20px 20px 0; }
+    .result-card.expanded .card-title { font-size: 16px; -webkit-line-clamp: 4; }
+    .result-card.expanded .card-src { opacity: 0.6; font-size: 9px; margin-top: 6px; }
+    .result-card.expanded .card-detail { display: block; }
+    .result-card.expanded .card-detail { opacity: 1; }
+
+    /* STACKED state */
+    .result-card.stacked {
+      cursor: default;
+      animation: none !important;
     }
 
-    /* Float keyframes per card */
+    /* The stack indicator at bottom-center */
+    .card-stack {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 54px; height: 38px;
+      z-index: 50;
+      cursor: pointer;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .card-stack.visible { display: flex; }
+    .stack-layer {
+      position: absolute;
+      width: 44px; height: 30px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+    }
+    .stack-layer:nth-child(1) { bottom: 0; transform: rotate(-4deg); }
+    .stack-layer:nth-child(2) { bottom: 4px; transform: rotate(2deg); background: rgba(255,255,255,0.04); }
+    .stack-layer:nth-child(3) { bottom: 8px; transform: rotate(-1.5deg); background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); }
+    .stack-hint {
+      position: absolute;
+      bottom: -14px;
+      font-size: 7px; font-family: 'Space Mono', monospace;
+      color: rgba(255,255,255,0.15); letter-spacing: 0.2em; text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .card-stack:hover .stack-layer { border-color: rgba(255,255,255,0.22); }
+
+    /* Card base positions (used for fly-in and restore) */
+    /* These are mirrored in JS */
+
+    /* Float keyframes */
     @keyframes float-a { 0%{transform:translateY(0) rotate(-0.5deg)} 25%{transform:translateY(-16px) rotate(-2deg)} 55%{transform:translateY(-8px) rotate(0.8deg)} 80%{transform:translateY(-18px) rotate(-1.5deg)} 100%{transform:translateY(0) rotate(-0.5deg)} }
     @keyframes float-b { 0%{transform:translateY(0) rotate(0.5deg)} 35%{transform:translateY(-20px) rotate(2.2deg)} 65%{transform:translateY(-6px) rotate(-0.6deg)} 85%{transform:translateY(-14px) rotate(1.8deg)} 100%{transform:translateY(0) rotate(0.5deg)} }
     @keyframes float-c { 0%{transform:translateY(0) rotate(0deg)} 30%{transform:translateY(-14px) rotate(1.5deg)} 60%{transform:translateY(-22px) rotate(-1deg)} 85%{transform:translateY(-8px) rotate(0.5deg)} 100%{transform:translateY(0) rotate(0deg)} }
@@ -264,12 +214,10 @@
     @keyframes float-e { 0%{transform:translateY(0) rotate(0.3deg)} 28%{transform:translateY(-12px) rotate(1.2deg)} 55%{transform:translateY(-20px) rotate(-0.8deg)} 80%{transform:translateY(-6px) rotate(1.5deg)} 100%{transform:translateY(0) rotate(0.3deg)} }
     @keyframes float-f { 0%{transform:translateY(0) rotate(-0.4deg)} 45%{transform:translateY(-16px) rotate(-1.8deg)} 72%{transform:translateY(-8px) rotate(0.9deg)} 90%{transform:translateY(-19px) rotate(-1.2deg)} 100%{transform:translateY(0) rotate(-0.4deg)} }
 
-    .card-a.visible { animation: fi-left  0.55s cubic-bezier(0.22,1,0.36,1) 0s    both, float-a 6s   ease-in-out 0.55s infinite; }
-    .card-b.visible { animation: fi-right 0.55s cubic-bezier(0.22,1,0.36,1) 0.1s  both, float-b 7.2s ease-in-out 0.65s infinite; }
-    .card-c.visible { animation: fi-left  0.55s cubic-bezier(0.22,1,0.36,1) 0.2s  both, float-c 5.8s ease-in-out 0.75s infinite; }
-    .card-d.visible { animation: fi-right 0.55s cubic-bezier(0.22,1,0.36,1) 0.3s  both, float-d 6.6s ease-in-out 0.85s infinite; }
-    .card-e.visible { animation: fi-left  0.55s cubic-bezier(0.22,1,0.36,1) 0.4s  both, float-e 7.8s ease-in-out 0.95s infinite; }
-    .card-f.visible { animation: fi-right 0.55s cubic-bezier(0.22,1,0.36,1) 0.5s  both, float-f 6.3s ease-in-out 1.05s infinite; }
+    @keyframes fi-in {
+      0%   { opacity:0; transform: translateY(35px) scale(0.9); }
+      100% { opacity:1; transform: translateY(0) scale(1); }
+    }
   </style>
 </head>
 <body>
@@ -304,78 +252,107 @@
 
     <!-- RESULTS -->
     <div class="stage-wrapper">
-      <div class="phone-frame">
+      <div class="phone-frame" id="phone-results">
         <div class="stage-results" id="results-stage">
 
-          <!-- Waveform anchor, center -->
-          <div class="results-wave-wrap">
+          <div class="results-wave-wrap" id="results-wave">
             <div class="results-waveform" id="results-waveform"></div>
             <div class="results-signal-text">signal active</div>
           </div>
 
-          <!-- Cards: alternating left / right -->
-          <div class="result-card card-a" id="card-a">
+          <div class="result-card" id="card-a" data-idx="0">
             <div class="card-thumb"><span class="card-thumb-icon">📰</span></div>
             <div class="card-body">
-              <div class="card-title">Knicks trade deadline moves</div>
+              <div class="card-title">Knicks trade deadline moves you need to know</div>
               <div class="card-src">ESPN · 2h</div>
+            </div>
+            <div class="card-detail">
+              <p>New York made three moves before the deadline — shoring up the bench and adding a defensive anchor at the four. Here's the full breakdown of who's in, who's out, and what it means for the playoff run.</p>
+              <span class="card-close" id="close-a">← back to results</span>
             </div>
           </div>
 
-          <div class="result-card card-b" id="card-b">
+          <div class="result-card" id="card-b" data-idx="1">
             <div class="card-thumb"><span class="card-thumb-icon">🏀</span></div>
             <div class="card-body">
               <div class="card-title">OG Anunoby returns to practice</div>
               <div class="card-src">The Athletic · 4h</div>
             </div>
+            <div class="card-detail">
+              <p>OG participated in a full practice session Tuesday, the first time since his shoulder injury in January. The team is targeting a return within the next two weeks if there are no setbacks.</p>
+              <span class="card-close" id="close-b">← back to results</span>
+            </div>
           </div>
 
-          <div class="result-card card-c" id="card-c">
+          <div class="result-card" id="card-c" data-idx="2">
             <div class="card-thumb"><span class="card-thumb-icon">⚡</span></div>
             <div class="card-body">
-              <div class="card-title">KAT injury — out tonight</div>
+              <div class="card-title">KAT injury report: out tonight</div>
               <div class="card-src">NBA.com · 6h</div>
             </div>
-          </div>
-
-          <div class="result-card card-d" id="card-d">
-            <div class="card-thumb"><span class="card-thumb-icon">📊</span></div>
-            <div class="card-body">
-              <div class="card-title">Why NY is the most interesting team</div>
-              <div class="card-src">The Ringer · 1d</div>
+            <div class="card-detail">
+              <p>Karl-Anthony Towns has been ruled out for tonight's game against the Heat with a right knee contusion. He is listed as day-to-day and will be re-evaluated before Thursday's matchup.</p>
+              <span class="card-close" id="close-c">← back to results</span>
             </div>
           </div>
 
-          <div class="result-card card-e" id="card-e">
+          <div class="result-card" id="card-d" data-idx="3">
+            <div class="card-thumb"><span class="card-thumb-icon">📊</span></div>
+            <div class="card-body">
+              <div class="card-title">Why NY is the most interesting team right now</div>
+              <div class="card-src">The Ringer · 1d</div>
+            </div>
+            <div class="card-detail">
+              <p>The Knicks have the best net rating in the East over the last 20 games, a transformed defensive identity, and Jalen Brunson playing at an MVP level. This isn't a fluke — it's construction.</p>
+              <span class="card-close" id="close-d">← back to results</span>
+            </div>
+          </div>
+
+          <div class="result-card" id="card-e" data-idx="4">
             <div class="card-thumb"><span class="card-thumb-icon">🎙️</span></div>
             <div class="card-body">
               <div class="card-title">Brunson drops 40 in comeback win</div>
               <div class="card-src">NYPost · 8h</div>
             </div>
+            <div class="card-detail">
+              <p>Down 14 in the third, Brunson took over — 19 points in the fourth quarter alone, including the go-ahead layup with 4.2 seconds left. The Garden went absolutely nuclear.</p>
+              <span class="card-close" id="close-e">← back to results</span>
+            </div>
           </div>
 
-          <div class="result-card card-f" id="card-f">
+          <div class="result-card" id="card-f" data-idx="5">
             <div class="card-thumb"><span class="card-thumb-icon">🔥</span></div>
             <div class="card-body">
               <div class="card-title">Playoff picture: East standings</div>
               <div class="card-src">CBS Sports · 3h</div>
             </div>
+            <div class="card-detail">
+              <p>With 18 games left, New York sits third in the East — one game behind Boston, four ahead of Indiana. The tiebreaker over Cleveland is currently in the Knicks' favor.</p>
+              <span class="card-close" id="close-f">← back to results</span>
+            </div>
+          </div>
+
+          <!-- Stack indicator -->
+          <div class="card-stack" id="card-stack">
+            <div class="stack-layer"></div>
+            <div class="stack-layer"></div>
+            <div class="stack-layer"></div>
+            <div class="stack-hint">results</div>
           </div>
 
         </div>
       </div>
-      <div class="stage-label"><h3>results</h3><p>cards scatter — tap to select</p></div>
+      <div class="stage-label"><h3>results</h3><p>tap a card — others stack below</p></div>
     </div>
 
   </div>
 
   <script>
-    // Listening waveform
+    // ── Listening waveform ──
     const waveform = document.getElementById('waveform');
     for (let i = 0; i < 14; i++) {
       const b = document.createElement('div');
-      b.className = 'wave-bar';
-      b.style.height = '4px';
+      b.className = 'wave-bar'; b.style.height = '4px';
       waveform.appendChild(b);
     }
     const waveBars = waveform.querySelectorAll('.wave-bar');
@@ -386,12 +363,11 @@
       });
     }, 90);
 
-    // Results waveform (smaller)
+    // ── Results waveform ──
     const rw = document.getElementById('results-waveform');
     for (let i = 0; i < 16; i++) {
       const b = document.createElement('div');
-      b.className = 'rwave-bar';
-      b.style.height = '4px';
+      b.className = 'rwave-bar'; b.style.height = '4px';
       rw.appendChild(b);
     }
     const rwBars = rw.querySelectorAll('.rwave-bar');
@@ -402,21 +378,186 @@
       });
     }, 90);
 
-    // Cards fly in
-    const cardIds = ['card-a','card-b','card-c','card-d','card-e','card-f'];
-    setTimeout(() => {
-      cardIds.forEach(id => document.getElementById(id).classList.add('visible'));
-    }, 300);
+    // ── Card definitions ──
+    const cardDefs = [
+      { id: 'card-a', left: 18,  top: 38,  floatAnim: 'float-a', dur: '6s',   delay: '0.55s',  close: 'close-a' },
+      { id: 'card-b', left: 162, top: 108, floatAnim: 'float-b', dur: '7.2s', delay: '0.65s',  close: 'close-b' },
+      { id: 'card-c', left: 18,  top: 238, floatAnim: 'float-c', dur: '5.8s', delay: '0.75s',  close: 'close-c' },
+      { id: 'card-d', left: 162, top: 320, floatAnim: 'float-d', dur: '6.6s', delay: '0.85s',  close: 'close-d' },
+      { id: 'card-e', left: 18,  top: 430, floatAnim: 'float-e', dur: '7.8s', delay: '0.95s',  close: 'close-e' },
+      { id: 'card-f', left: 162, top: 478, floatAnim: 'float-f', dur: '6.3s', delay: '1.05s',  close: 'close-f' },
+    ];
 
-    // Select
-    cardIds.forEach(id => {
-      document.getElementById(id).addEventListener('click', () => {
-        const card = document.getElementById(id);
-        const was = card.classList.contains('selected');
-        cardIds.forEach(oid => document.getElementById(oid).classList.remove('selected'));
-        if (!was) card.classList.add('selected');
+    const phone = document.getElementById('phone-results');
+    const stage = document.getElementById('results-stage');
+    const wave  = document.getElementById('results-wave');
+    const stack = document.getElementById('card-stack');
+    const EASE  = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    let expandedId = null;
+
+    function getPhoneRect() {
+      return phone.getBoundingClientRect();
+    }
+
+    function setFloat(card, def) {
+      card.style.animation = `fi-in 0.55s ${EASE} both, ${def.floatAnim} ${def.dur} ease-in-out ${def.delay} infinite`;
+    }
+
+    function clearFloat(card) {
+      // Snapshot current computed transform position, then kill animation
+      const rect = card.getBoundingClientRect();
+      const stageRect = stage.getBoundingClientRect();
+      card.style.animation = 'none';
+      // Force the card to stay where it visually is
+      card.style.left = (rect.left - stageRect.left) + 'px';
+      card.style.top  = (rect.top  - stageRect.top)  + 'px';
+      card.style.transform = 'none';
+    }
+
+    function expandCard(id) {
+      if (expandedId) return;
+      expandedId = id;
+
+      const def = cardDefs.find(d => d.id === id);
+      const card = document.getElementById(id);
+      const others = cardDefs.filter(d => d.id !== id);
+
+      // 1. Stop floating on ALL cards, freeze them in place
+      cardDefs.forEach(d => {
+        const c = document.getElementById(d.id);
+        clearFloat(c);
       });
-    });
+
+      // Snapshot card rect before transition
+      const cardRect = card.getBoundingClientRect();
+      const stageRect = stage.getBoundingClientRect();
+
+      // 2. Expand selected card to fill stage
+      card.style.transition = `all 0.55s ${EASE}`;
+      card.style.zIndex = '100';
+      requestAnimationFrame(() => {
+        card.style.left   = '0px';
+        card.style.top    = '0px';
+        card.style.width  = stageRect.width + 'px';
+        card.style.height = stageRect.height + 'px';
+        card.style.borderRadius = '50px';
+        card.style.background = '#111';
+        card.style.borderColor = 'transparent';
+        card.classList.add('expanded');
+      });
+
+      // 3. Collapse others into stack at bottom center
+      const stackTargetLeft = stageRect.width / 2 - 27; // stack width ~54/2
+      const stackTargetTop  = stageRect.height - 80;
+
+      others.forEach((d, i) => {
+        const c = document.getElementById(d.id);
+        const delay = 0.04 * i;
+        c.style.transition = `all 0.5s ${EASE} ${delay}s`;
+        c.classList.add('stacked');
+        requestAnimationFrame(() => {
+          c.style.left   = stackTargetLeft + (i % 3 - 1) * 5 + 'px';
+          c.style.top    = stackTargetTop  - i * 3 + 'px';
+          c.style.width  = '54px';
+          c.style.height = '38px';
+          c.style.borderRadius = '8px';
+          c.style.opacity = 0.6 - i * 0.05;
+          c.style.transform = `rotate(${(i % 2 === 0 ? -1 : 1) * (2 + i)}deg)`;
+          c.style.zIndex = 20 - i;
+        });
+      });
+
+      // 4. Show stack indicator
+      setTimeout(() => { stack.classList.add('visible'); }, 400);
+
+      // 5. Fade out center waveform
+      wave.classList.add('hidden');
+
+      // 6. Show detail content
+      setTimeout(() => {
+        card.querySelector('.card-detail').style.opacity = '1';
+      }, 350);
+    }
+
+    function collapseBack() {
+      if (!expandedId) return;
+      const prevId = expandedId;
+      expandedId = null;
+
+      // Hide stack
+      stack.classList.remove('visible');
+
+      // Restore expanded card
+      const card = document.getElementById(prevId);
+      const def  = cardDefs.find(d => d.id === prevId);
+      card.querySelector('.card-detail').style.opacity = '0';
+      card.classList.remove('expanded');
+      card.style.transition = `all 0.5s ${EASE}`;
+      card.style.left   = def.left + 'px';
+      card.style.top    = def.top  + 'px';
+      card.style.width  = '130px';
+      card.style.height = '120px';
+      card.style.borderRadius = '18px';
+      card.style.background = '';
+      card.style.borderColor = '';
+      card.style.zIndex = '';
+
+      // Restore others
+      cardDefs.filter(d => d.id !== prevId).forEach((d, i) => {
+        const c = document.getElementById(d.id);
+        const delay = 0.04 * i;
+        c.classList.remove('stacked');
+        c.style.transition = `all 0.5s ${EASE} ${delay}s`;
+        c.style.left        = d.left + 'px';
+        c.style.top         = d.top  + 'px';
+        c.style.width       = '130px';
+        c.style.height      = '120px';
+        c.style.borderRadius = '18px';
+        c.style.opacity     = '1';
+        c.style.transform   = '';
+        c.style.zIndex      = '';
+      });
+
+      // Restore waveform
+      wave.classList.remove('hidden');
+
+      // Re-enable floating after restore
+      setTimeout(() => {
+        cardDefs.forEach(d => {
+          const c = document.getElementById(d.id);
+          c.style.transition = '';
+          setFloat(c, d);
+        });
+      }, 600);
+    }
+
+    // ── Init: fly in ──
+    function initCards() {
+      cardDefs.forEach((def, i) => {
+        const card = document.getElementById(def.id);
+        card.style.left = def.left + 'px';
+        card.style.top  = def.top  + 'px';
+        card.style.width  = '130px';
+        card.style.height = '120px';
+
+        setTimeout(() => {
+          setFloat(card, def);
+        }, 300 + i * 60);
+
+        card.addEventListener('click', () => {
+          if (!expandedId) expandCard(def.id);
+        });
+
+        document.getElementById(def.close).addEventListener('click', (e) => {
+          e.stopPropagation();
+          collapseBack();
+        });
+      });
+    }
+
+    stack.addEventListener('click', collapseBack);
+
+    initCards();
   </script>
 </body>
 </html>
