@@ -149,11 +149,11 @@
       overflow: hidden;
     }
 
-    /* Content containers - fade in together */
+    /* Content containers - start hidden, fade in after expand completes */
     .overlay-hero,
     .overlay-body {
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.4s ease-in-out;
     }
     .overlay-hero-emoji {
       position: relative;
@@ -448,9 +448,16 @@
       // Set card-specific background color
       overlay.style.setProperty('--card-color', CARD_COLORS[def.id] || 'rgba(255,255,255,0.05)');
 
-      // Hide content initially, reveal after 200ms
+      // Ensure content is hidden BEFORE expand starts
+      overlayHero.style.transition = 'none';
+      overlayBody.style.transition = 'none';
       hideContent();
-      setTimeout(showContent, 200);
+      // Force reflow to apply opacity: 0 immediately
+      overlayHero.offsetHeight;
+      overlayBody.offsetHeight;
+      // Restore transition for later fade-in
+      overlayHero.style.transition = 'opacity 0.4s ease-in-out';
+      overlayBody.style.transition = 'opacity 0.4s ease-in-out';
 
       // Position overlay exactly over the card (no transition)
       overlay.style.transition = 'none';
@@ -511,6 +518,9 @@
         overlay.style.transform = 'scale(1)';
         overlay.classList.remove('animating');
         overlay.classList.add('open');
+
+        // PHASE 2: Content fades in now that card is fully open
+        showContent();
       };
 
       // Pause all floating cards + fade out
@@ -546,123 +556,126 @@
 
       stackEl.classList.remove('visible');
 
-      // Fade out content fast (100ms)
-      overlayHero.style.transition = 'opacity 0.1s ease';
-      overlayBody.style.transition = 'opacity 0.1s ease';
+      // PHASE 1 of collapse: fade out content (150ms)
+      overlayHero.style.transition = 'opacity 0.15s ease';
+      overlayBody.style.transition = 'opacity 0.15s ease';
       hideContent();
 
-      // Cancel any running animations on overlay
-      overlay.getAnimations().forEach(a => a.cancel());
-      if (expandAnim) {
-        expandAnim = null;
-      }
-
-      overlay.classList.remove('open');
-      overlay.classList.add('animating');
-
-      // Get current overlay position for smooth collapse
-      const currentRect = overlay.getBoundingClientRect();
-      const stageRect = stage.getBoundingClientRect();
-
-      // WAAPI collapse: full → card rect, 580ms expo out (premium feel)
-      collapseAnim = overlay.animate([
-        {
-          left: (currentRect.left - stageRect.left) + 'px',
-          top: (currentRect.top - stageRect.top) + 'px',
-          width: currentRect.width + 'px',
-          height: currentRect.height + 'px',
-          borderRadius: '50px',
-          opacity: 1,
-          transform: 'scale(1)'
-        },
-        {
-          left: originRect.left + 'px',
-          top: originRect.top + 'px',
-          width: originRect.width + 'px',
-          height: originRect.height + 'px',
-          borderRadius: '18px',
-          opacity: 1,
-          transform: 'scale(1)',
-          offset: 0.85
-        },
-        {
-          left: originRect.left + 'px',
-          top: originRect.top + 'px',
-          width: originRect.width + 'px',
-          height: originRect.height + 'px',
-          borderRadius: '18px',
-          opacity: 0,
-          transform: 'scale(1)'
-        }
-      ], {
-        duration: 580,
-        easing: EXPO_OUT,
-        fill: 'forwards'
-      });
-
-      // Restore cards with rAF-based stagger timing
-      let cardsStartTime = null;
-      function restoreCardsTick(timestamp) {
-        if (!cardsStartTime) cardsStartTime = timestamp;
-        if (timestamp - cardsStartTime >= 200) {
-          cardDefs.forEach((def, i) => {
-            const c = document.getElementById(def.id);
-            c.style.transition = `opacity 0.45s ease ${i * 0.05}s, transform 0.45s ${EASE} ${i * 0.05}s`;
-            c.style.opacity   = '1';
-            c.style.transform = '';
-          });
-        } else {
-          requestAnimationFrame(restoreCardsTick);
-        }
-      }
-      requestAnimationFrame(restoreCardsTick);
-
-      // Restore waveform with rAF timing
-      let waveStartTime = null;
-      function restoreWaveTick(timestamp) {
-        if (!waveStartTime) waveStartTime = timestamp;
-        if (timestamp - waveStartTime >= 450) {
-          wave.classList.remove('hidden');
-        } else {
-          requestAnimationFrame(restoreWaveTick);
-        }
-      }
-      requestAnimationFrame(restoreWaveTick);
-
-      collapseAnim.onfinish = () => {
-        // Cancel and clean up all overlay animations
+      // Wait for content to fade out, THEN shrink overlay
+      setTimeout(() => {
+        // Cancel any running animations on overlay
         overlay.getAnimations().forEach(a => a.cancel());
+        if (expandAnim) {
+          expandAnim = null;
+        }
 
-        // Fully reset overlay to initial invisible state
-        overlay.style.transition = 'none';
-        overlay.style.left = '0';
-        overlay.style.top = '0';
-        overlay.style.width = '130px';
-        overlay.style.height = '120px';
-        overlay.style.opacity = '0';
-        overlay.style.transform = 'none';
-        overlay.style.borderRadius = '18px';
-        overlay.style.pointerEvents = 'none';
-        overlay.classList.remove('animating');
+        overlay.classList.remove('open');
+        overlay.classList.add('animating');
 
-        // Reset content transitions back to normal
-        overlayHero.style.transition = 'opacity 0.3s ease';
-        overlayBody.style.transition = 'opacity 0.3s ease';
+        // Get current overlay position for smooth collapse
+        const currentRect = overlay.getBoundingClientRect();
+        const stageRect = stage.getBoundingClientRect();
 
-        // Resume floats on all cards
-        cardDefs.forEach(def => {
-          const c = document.getElementById(def.id);
-          c.style.transition = '';
-          c.style.opacity = '1';
-          c.style.transform = '';
-          resumeFloat(def);
+        // PHASE 2 of collapse: shrink overlay back to card (580ms)
+        collapseAnim = overlay.animate([
+          {
+            left: (currentRect.left - stageRect.left) + 'px',
+            top: (currentRect.top - stageRect.top) + 'px',
+            width: currentRect.width + 'px',
+            height: currentRect.height + 'px',
+            borderRadius: '50px',
+            opacity: 1,
+            transform: 'scale(1)'
+          },
+          {
+            left: originRect.left + 'px',
+            top: originRect.top + 'px',
+            width: originRect.width + 'px',
+            height: originRect.height + 'px',
+            borderRadius: '18px',
+            opacity: 1,
+            transform: 'scale(1)',
+            offset: 0.85
+          },
+          {
+            left: originRect.left + 'px',
+            top: originRect.top + 'px',
+            width: originRect.width + 'px',
+            height: originRect.height + 'px',
+            borderRadius: '18px',
+            opacity: 0,
+            transform: 'scale(1)'
+          }
+        ], {
+          duration: 580,
+          easing: EXPO_OUT,
+          fill: 'forwards'
         });
 
-        // Clear state - NOW it's safe to accept new expand
-        originRect = null;
-        collapseAnim = null;
-        expanded = false;
-      };
+        // Restore cards with rAF-based stagger timing
+        let cardsStartTime = null;
+        function restoreCardsTick(timestamp) {
+          if (!cardsStartTime) cardsStartTime = timestamp;
+          if (timestamp - cardsStartTime >= 200) {
+            cardDefs.forEach((def, i) => {
+              const c = document.getElementById(def.id);
+              c.style.transition = `opacity 0.45s ease ${i * 0.05}s, transform 0.45s ${EASE} ${i * 0.05}s`;
+              c.style.opacity   = '1';
+              c.style.transform = '';
+            });
+          } else {
+            requestAnimationFrame(restoreCardsTick);
+          }
+        }
+        requestAnimationFrame(restoreCardsTick);
+
+        // Restore waveform with rAF timing
+        let waveStartTime = null;
+        function restoreWaveTick(timestamp) {
+          if (!waveStartTime) waveStartTime = timestamp;
+          if (timestamp - waveStartTime >= 450) {
+            wave.classList.remove('hidden');
+          } else {
+            requestAnimationFrame(restoreWaveTick);
+          }
+        }
+        requestAnimationFrame(restoreWaveTick);
+
+        collapseAnim.onfinish = () => {
+          // Cancel and clean up all overlay animations
+          overlay.getAnimations().forEach(a => a.cancel());
+
+          // Fully reset overlay to initial invisible state
+          overlay.style.transition = 'none';
+          overlay.style.left = '0';
+          overlay.style.top = '0';
+          overlay.style.width = '130px';
+          overlay.style.height = '120px';
+          overlay.style.opacity = '0';
+          overlay.style.transform = 'none';
+          overlay.style.borderRadius = '18px';
+          overlay.style.pointerEvents = 'none';
+          overlay.classList.remove('animating');
+
+          // Reset content transitions back to normal
+          overlayHero.style.transition = 'opacity 0.4s ease-in-out';
+          overlayBody.style.transition = 'opacity 0.4s ease-in-out';
+
+          // Resume floats on all cards
+          cardDefs.forEach(def => {
+            const c = document.getElementById(def.id);
+            c.style.transition = '';
+            c.style.opacity = '1';
+            c.style.transform = '';
+            resumeFloat(def);
+          });
+
+          // Clear state - NOW it's safe to accept new expand
+          originRect = null;
+          collapseAnim = null;
+          expanded = false;
+        };
+      }, 150); // Wait for 150ms content fade-out to complete
     }
 
     // Card click handlers
