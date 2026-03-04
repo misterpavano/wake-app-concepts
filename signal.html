@@ -166,11 +166,11 @@
       overflow: hidden;
     }
 
-    /* Content containers - start hidden, fade in after expand completes */
+    /* Content containers - start hidden, fade in near end of expand */
     .overlay-hero,
     .overlay-body {
       opacity: 0;
-      transition: opacity 0.4s ease-in-out;
+      transition: opacity 0.25s ease-in;
     }
     .overlay-hero-emoji {
       position: relative;
@@ -478,9 +478,9 @@
       // Force reflow to apply opacity: 0 immediately
       overlayHero.offsetHeight;
       overlayBody.offsetHeight;
-      // Restore transition for later fade-in
-      overlayHero.style.transition = 'opacity 0.4s ease-in-out';
-      overlayBody.style.transition = 'opacity 0.4s ease-in-out';
+      // Restore transition for later fade-in (250ms ease-in, starts at 800ms)
+      overlayHero.style.transition = 'opacity 0.25s ease-in';
+      overlayBody.style.transition = 'opacity 0.25s ease-in';
 
       // Position overlay exactly over the card (no transition)
       overlay.style.transition = 'none';
@@ -497,39 +497,33 @@
       // Force reflow
       overlay.getBoundingClientRect();
 
-      // WAAPI keyframe animation: card rect → full size with mid-scale pop
-      // 0% = card, 60% = full size + overshoot border-radius (45px) + scale(1.02), 100% = final
+      // WAAPI keyframe animation: pure position/size morph, no scale
+      // 900ms expo-out — starts fast, decelerates into silky landing
       expandAnim = overlay.animate([
         {
           left: originRect.left + 'px',
           top: originRect.top + 'px',
           width: originRect.width + 'px',
           height: originRect.height + 'px',
-          borderRadius: '18px',
-          transform: 'scale(1)'
+          borderRadius: '18px'
         },
         {
           left: '0px',
           top: '0px',
           width: '310px',
           height: '620px',
-          borderRadius: '45px', // Slight overshoot
-          transform: 'scale(1.02)', // Satisfying pop
-          offset: 0.6
-        },
-        {
-          left: '0px',
-          top: '0px',
-          width: '310px',
-          height: '620px',
-          borderRadius: '50px',
-          transform: 'scale(1)'
+          borderRadius: '50px'
         }
       ], {
-        duration: 680,
+        duration: 900,
         easing: EXPO_OUT,
         fill: 'forwards'
       });
+
+      // Content breathes in at 800ms (overlaps final 100ms of expand)
+      setTimeout(() => {
+        if (expanded) showContent();
+      }, 800);
 
       expandAnim.onfinish = () => {
         // Commit final styles
@@ -538,12 +532,8 @@
         overlay.style.width = '310px';
         overlay.style.height = '620px';
         overlay.style.borderRadius = '50px';
-        overlay.style.transform = 'scale(1)';
         overlay.classList.remove('animating');
         overlay.classList.add('open');
-
-        // PHASE 2: Content fades in now that card is fully open
-        showContent();
       };
 
       // Pause all floating cards + fade out
@@ -681,8 +671,8 @@
           overlay.classList.remove('animating');
 
           // Reset content transitions back to normal
-          overlayHero.style.transition = 'opacity 0.4s ease-in-out';
-          overlayBody.style.transition = 'opacity 0.4s ease-in-out';
+          overlayHero.style.transition = 'opacity 0.25s ease-in';
+          overlayBody.style.transition = 'opacity 0.25s ease-in';
 
           // Resume floats on all cards
           cardDefs.forEach(def => {
