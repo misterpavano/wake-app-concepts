@@ -913,7 +913,8 @@
             });
             const data = await res.json();
             const text = res.ok ? data.response : (data.detail || data.error || "Something went wrong");
-            loadingCard.innerHTML = "<div style=\"font-size:12px;font-weight:300;color:rgba(255,255,255,0.85);line-height:1.75;\">" + text + "</div>";
+            const formatted = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
+            loadingCard.innerHTML = "<div style=\"font-size:13px;font-weight:300;color:rgba(255,255,255,0.88);line-height:1.8;\">" + formatted + "</div>";
           } catch (e) {
             loadingCard.innerHTML = "<div style=\"font-size:11px;color:rgba(255,255,255,0.4);text-align:center\">Could not reach server.<br>Run: bash ~/pavano-says/start.sh</div>";
           }
