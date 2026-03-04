@@ -10,7 +10,7 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #080808;
+      background: #060606;
       min-height: 100vh;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -18,21 +18,21 @@
       overflow: hidden;
     }
     .header {
-      font-size: 13px; font-weight: 300; color: #2a2a2a;
-      letter-spacing: 0.35em; text-transform: lowercase;
+      font-size: 13px; font-weight: 300; color: rgba(245,240,235,0.12);
+      letter-spacing: 0.4em; text-transform: lowercase;
       margin-bottom: 40px; user-select: none;
     }
     .stages { display: flex; gap: 60px; align-items: flex-start; }
     .stage-wrapper { display: flex; flex-direction: column; align-items: center; }
     .phone-frame {
       width: 310px; height: 620px; border-radius: 50px;
-      border: 1px solid rgba(255,255,255,0.07);
-      overflow: hidden; position: relative; background: #0a0a0a;
+      border: 1px solid rgba(255,255,255,0.05);
+      overflow: hidden; position: relative; background: #060606;
     }
     .stage-label { margin-top: 18px; text-align: center; }
-    .stage-label h3 { font-size: 11px; font-weight: 400; color: #444; letter-spacing: 0.2em; text-transform: lowercase; }
-    .stage-label p  { font-size: 10px; font-weight: 300; color: #2a2a2a; margin-top: 4px; }
-    .arrow { display: flex; align-items: center; color: #1e1e1e; font-size: 18px; margin-top: -300px; user-select: none; }
+    .stage-label h3 { font-size: 11px; font-weight: 300; color: rgba(245,240,235,0.4); letter-spacing: 0.2em; text-transform: lowercase; }
+    .stage-label p  { font-size: 10px; font-weight: 300; color: rgba(245,240,235,0.2); margin-top: 4px; }
+    .arrow { display: flex; align-items: center; color: rgba(245,240,235,0.08); font-size: 18px; margin-top: -300px; user-select: none; }
 
     /* ── IDLE ── */
     .stage-idle {
@@ -40,9 +40,9 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       cursor: pointer;
     }
-    .idle-line { width: 180px; height: 1.5px; background: #1e1e1e; border-radius: 2px; transition: background 0.3s; }
-    .stage-idle:hover .idle-line { background: #333; }
-    .idle-hint { margin-top: 24px; font-size: 9px; font-family: 'Space Mono', monospace; color: #222; letter-spacing: 0.3em; text-transform: uppercase; }
+    .idle-line { width: 180px; height: 1.5px; background: rgba(245,240,235,0.08); border-radius: 2px; transition: background 0.3s; }
+    .stage-idle:hover .idle-line { background: rgba(245,240,235,0.15); }
+    .idle-hint { margin-top: 24px; font-size: 9px; font-family: 'Space Mono', monospace; color: rgba(245,240,235,0.1); letter-spacing: 0.3em; text-transform: uppercase; }
 
     /* ── LISTENING ── */
     .stage-active {
@@ -50,13 +50,13 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
     .waveform { display: flex; gap: 5px; align-items: center; height: 56px; }
-    .wave-bar { width: 2.5px; background: #fff; border-radius: 2px; transition: height 0.08s ease; }
-    .active-text { margin-top: 22px; font-size: 9px; font-family: 'Space Mono', monospace; color: #555; letter-spacing: 0.25em; text-transform: uppercase; }
+    .wave-bar { width: 2.5px; background: rgba(245,240,235,0.8); border-radius: 2px; transition: height 0.08s ease; }
+    .active-text { margin-top: 22px; font-size: 9px; font-family: 'Space Mono', monospace; color: rgba(245,240,235,0.25); letter-spacing: 0.25em; text-transform: uppercase; }
 
     /* ── RESULTS ── */
     .stage-results {
       width: 310px; height: 620px;
-      position: relative; overflow: hidden; background: #0a0a0a;
+      position: relative; overflow: hidden; background: #060606;
     }
 
     /* Center waveform */
@@ -69,33 +69,41 @@
     }
     .results-wave-wrap.hidden { opacity: 0; }
     .results-waveform { display: flex; gap: 4px; align-items: center; height: 40px; }
-    .rwave-bar { width: 2px; background: rgba(255,255,255,0.55); border-radius: 2px; transition: height 0.09s ease; }
-    .results-signal-text { font-size: 8px; font-family: 'Space Mono', monospace; color: rgba(255,255,255,0.18); letter-spacing: 0.3em; text-transform: uppercase; }
+    .rwave-bar { width: 2px; background: rgba(245,240,235,0.3); border-radius: 2px; transition: height 0.09s ease; }
+    .results-signal-text { font-size: 8px; font-family: 'Space Mono', monospace; color: rgba(245,240,235,0.1); letter-spacing: 0.3em; text-transform: uppercase; }
 
     /* ── BASE CARD ── */
     .result-card {
       position: absolute;
       width: 130px; height: 120px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
       overflow: hidden;
       cursor: pointer;
       opacity: 0;
       user-select: none;
       z-index: 10;
     }
-    .result-card:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.2); }
+    .result-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); }
 
     .card-thumb {
       width: 100%; height: 54px;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(255,255,255,0.04);
-      font-size: 22px;
+      background: transparent;
+      font-size: 0;
+      position: relative;
+    }
+    .card-thumb::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
     }
     .card-body { padding: 8px 10px; }
-    .card-title { font-size: 10px; font-weight: 400; color: rgba(255,255,255,0.78); line-height: 1.4; }
-    .card-src   { font-size: 8px; color: rgba(255,255,255,0.25); margin-top: 3px; font-family: 'Space Mono', monospace; }
+    .card-title { font-size: 10px; font-weight: 300; color: rgba(245,240,235,0.7); line-height: 1.4; letter-spacing: 0.02em; }
+    .card-src   { font-size: 7px; color: rgba(245,240,235,0.2); margin-top: 3px; font-family: 'Space Mono', monospace; letter-spacing: 0.15em; }
 
     /* Float keyframes */
     @keyframes float-a { 0%{transform:translateY(0) rotate(-0.5deg)} 25%{transform:translateY(-16px) rotate(-2deg)} 55%{transform:translateY(-8px) rotate(0.8deg)} 80%{transform:translateY(-18px) rotate(-1.5deg)} 100%{transform:translateY(0) rotate(-0.5deg)} }
@@ -111,14 +119,14 @@
     #expand-overlay {
       position: absolute;
       z-index: 200;
-      background: #111;
-      border-radius: 18px;
+      background: #0d0d0d;
+      border-radius: 20px;
       overflow: hidden;
       opacity: 0;
       pointer-events: none;
       display: flex;
       flex-direction: column;
-      --card-color: rgba(255,255,255,0.05);
+      --card-color: rgba(255,255,255,0.03);
     }
 
     #expand-overlay.animating,
@@ -133,13 +141,22 @@
       flex-shrink: 0;
       font-size: 64px;
       position: relative;
+      padding-top: 60px;
       background: radial-gradient(ellipse 80% 60% at 50% 20%, var(--card-color), transparent 70%);
     }
     .overlay-hero::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, transparent 50%, #111 100%);
+      background: linear-gradient(to bottom, transparent 50%, #0d0d0d 100%);
+    }
+    .overlay-hero::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 24px; right: 24px;
+      height: 1px;
+      background: rgba(255,255,255,0.07);
+      z-index: 2;
     }
 
     .overlay-body {
@@ -158,27 +175,33 @@
     .overlay-hero-emoji {
       position: relative;
       z-index: 1;
+      font-size: 0;
     }
     .overlay-src {
-      font-size: 9px; font-family: 'Space Mono', monospace;
-      color: rgba(255,255,255,0.3); letter-spacing: 0.15em;
+      font-size: 11px; font-family: 'Space Mono', monospace;
+      color: rgba(245,240,235,0.15); letter-spacing: 0.4em;
       text-transform: uppercase; margin-bottom: 10px;
+      position: absolute;
+      top: 60px; left: 0; right: 0;
+      text-align: center;
+      z-index: 3;
     }
     .overlay-title {
-      font-size: 19px; font-weight: 500; color: rgba(255,255,255,0.9);
-      line-height: 1.35; margin-bottom: 16px;
+      font-size: 20px; font-weight: 300; color: #f5f0eb;
+      line-height: 1.4; margin-bottom: 16px; letter-spacing: -0.01em;
+      margin-top: 20px;
     }
     .overlay-copy {
-      font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.45);
-      line-height: 1.75; flex: 1;
+      font-size: 13px; font-weight: 300; color: rgba(245,240,235,0.38);
+      line-height: 1.8; flex: 1;
     }
     .overlay-back {
       margin-top: 20px;
-      font-size: 9px; font-family: 'Space Mono', monospace;
-      color: rgba(255,255,255,0.2); letter-spacing: 0.2em; text-transform: uppercase;
+      font-size: 8px; font-family: 'Space Mono', monospace;
+      color: rgba(245,240,235,0.18); letter-spacing: 0.25em; text-transform: uppercase;
       cursor: pointer; text-align: center; padding: 8px 0;
     }
-    .overlay-back:hover { color: rgba(255,255,255,0.45); }
+    .overlay-back:hover { color: rgba(245,240,235,0.35); }
 
 
     /* ── STACK ── */
@@ -200,18 +223,18 @@
       position: absolute;
       width: 44px; height: 30px;
       border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.13);
-      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.04);
       bottom: 0;
     }
     .stack-layer:nth-child(1) { transform: rotate(-3.5deg); left: 2px; }
-    .stack-layer:nth-child(2) { transform: rotate(2deg); left: 0px; bottom: 3px; background: rgba(255,255,255,0.05); }
-    .stack-layer:nth-child(3) { transform: rotate(-1deg); left: 1px; bottom: 6px; background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); }
-    #card-stack:hover .stack-layer { border-color: rgba(255,255,255,0.22); }
+    .stack-layer:nth-child(2) { transform: rotate(2deg); left: 0px; bottom: 3px; background: rgba(255,255,255,0.03); }
+    .stack-layer:nth-child(3) { transform: rotate(-1deg); left: 1px; bottom: 6px; background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); }
+    #card-stack:hover .stack-layer { border-color: rgba(255,255,255,0.12); }
     .stack-label {
       margin-top: 10px;
       font-size: 7px; font-family: 'Space Mono', monospace;
-      color: rgba(255,255,255,0.18); letter-spacing: 0.25em; text-transform: uppercase;
+      color: rgba(245,240,235,0.12); letter-spacing: 0.25em; text-transform: uppercase;
     }
   </style>
 </head>
