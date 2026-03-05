@@ -1409,12 +1409,22 @@
             // Sports mode for General chat
             if (selectedChatId === "general") {
               isSportsMode = true;
+              // Cycle status messages while Gemini+TTS works (can take 8-15s)
+              const statusMsgs = ["searching...", "reading the feed...", "asking fable...", "almost there..."];
+              let msgIdx = 0;
+              const statusInterval = setInterval(() => {
+                msgIdx = (msgIdx + 1) % statusMsgs.length;
+                signalText.textContent = statusMsgs[msgIdx];
+              }, 2800);
+
               const res = await fetch("/api/sports", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"}
+                headers: {"Content-Type": "application/json"},
+                signal: AbortSignal.timeout(60000)
               });
               const data = await res.json();
 
+              clearInterval(statusInterval);
               clearInterval(resultsWaveInterval);
 
               if (res.ok && data.cards && data.cards.length > 0) {
