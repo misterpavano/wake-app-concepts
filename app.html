@@ -404,49 +404,7 @@
     }
     .overlay-back:active { color: rgba(255,255,255,0.6); }
 
-    /* ── STACK ── */
-    #card-stack {
-      position: absolute;
-      bottom: calc(32px + env(safe-area-inset-bottom));
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 150;
-      cursor: pointer;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    #card-stack.visible { opacity: 1; pointer-events: all; }
-    .stack-cards {
-      position: relative;
-      width: 48px;
-      height: 36px;
-    }
-    .stack-layer {
-      position: absolute;
-      width: 44px;
-      height: 30px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.07);
-      background: rgba(255,255,255,0.04);
-      bottom: 0;
-    }
-    .stack-layer:nth-child(1) { transform: rotate(-3.5deg); left: 2px; }
-    .stack-layer:nth-child(2) { transform: rotate(2deg); left: 0px; bottom: 3px; background: rgba(255,255,255,0.03); }
-    .stack-layer:nth-child(3) { transform: rotate(-1deg); left: 1px; bottom: 6px; background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); }
-    #card-stack:active .stack-layer { border-color: rgba(255,255,255,0.15); }
-    .stack-label {
-      margin-top: 10px;
-      font-size: 7px;
-      font-family: 'Space Mono', monospace;
-      color: rgba(255,255,255,0.35);
-      letter-spacing: 0.25em;
-      text-transform: lowercase;
-    }
+    
 
     /* ── CHAT DROPDOWN ── */
     #chat-dropdown {
@@ -602,14 +560,6 @@
         <div class="overlay-back" id="overlay-back">← back</div>
       </div>
     </div>
-
-    <!-- Stack -->
-    <div id="card-stack">
-      <div class="stack-cards">
-        <div class="stack-layer"></div>
-        <div class="stack-layer"></div>
-        <div class="stack-layer"></div>
-      </div>
       <div class="stack-label">5 results</div>
     </div>
   </div>
@@ -678,7 +628,7 @@
     const overlay = document.getElementById('expand-overlay');
     const overlayHero = document.getElementById('overlay-hero');
     const overlayBody = document.querySelector('.overlay-body');
-    const stackEl = document.getElementById('card-stack');
+    const stackEl = { classList: { add: ()=>{}, remove: ()=>{} } };
     const audioWave = document.getElementById('audio-wave');
     let currentAudio = null;
 
@@ -705,14 +655,32 @@
     let isSportsMode = false;
 
     // Card definitions - positions for card-stack (relative to stack origin)
-    const cardDefs = [
-      { id: 'card-a', left: 18,  top: 38,  float: 'float-a', dur: '6s',   floatDelay: '0s'   },
-      { id: 'card-b', left: 162, top: 108, float: 'float-b', dur: '7.2s', floatDelay: '0.5s' },
-      { id: 'card-c', left: 18,  top: 238, float: 'float-c', dur: '5.8s', floatDelay: '1s'   },
-      { id: 'card-d', left: 162, top: 320, float: 'float-d', dur: '6.6s', floatDelay: '0.3s' },
-      { id: 'card-e', left: 18,  top: 430, float: 'float-e', dur: '7.8s', floatDelay: '0.8s' },
-      { id: 'card-f', left: 162, top: 478, float: 'float-f', dur: '6.3s', floatDelay: '0.2s' },
-    ];
+    // Generate random scattered positions across the full screen
+    function randomCardDefs() {
+      const W = window.innerWidth, H = window.innerHeight;
+      const cardW = 155, cardH = 140, margin = 16;
+      const slots = [];
+      const floats = ['float-a','float-b','float-c','float-d','float-e','float-f'];
+      const durs = ['6s','7.2s','5.8s','6.6s','7.8s','6.3s'];
+      const delays = ['0s','0.5s','1s','0.3s','0.8s','0.2s'];
+      const ids = ['card-a','card-b','card-c','card-d','card-e','card-f'];
+      // Place cards avoiding overlap
+      for (let i = 0; i < 6; i++) {
+        let tries = 0, left, top, ok;
+        do {
+          left = margin + Math.random() * (W - cardW - margin * 2);
+          top = 80 + Math.random() * (H - cardH - 100);
+          ok = true;
+          for (const s of slots) {
+            if (Math.abs(s.left - left) < cardW + 12 && Math.abs(s.top - top) < cardH + 12) { ok = false; break; }
+          }
+          tries++;
+        } while (!ok && tries < 40);
+        slots.push({ id: ids[i], left: Math.round(left), top: Math.round(top), float: floats[i], dur: durs[i], floatDelay: delays[i] });
+      }
+      return slots;
+    }
+    const cardDefs = randomCardDefs();
 
     // Build card inner HTML
     cardDefs.forEach(def => {
@@ -868,7 +836,7 @@
         c.style.transform = '';
         c.style.animation = '';
       });
-      stackEl.classList.add('visible');
+      
 
       // Schedule each card fly-in based on timings
       timings.forEach((timing, i) => {
@@ -1195,7 +1163,7 @@
           // Reset to idle
           clearInterval(resultsWaveInterval);
           resultsWave.classList.remove('hidden');
-          stackEl.classList.remove('visible');
+          
 
           // Reset signal text
           const signalText = resultsWave.querySelector('.results-signal-text');
@@ -1223,7 +1191,7 @@
         audioWave.classList.remove('active');
       }
 
-      stackEl.classList.remove('visible');
+      
 
       overlayHero.style.transition = 'opacity 0.15s ease';
       overlayBody.style.transition = 'opacity 0.15s ease';
@@ -1349,8 +1317,7 @@
         if (el) el.style.display = 'none';
       }
 
-      // Update stack label
-      document.querySelector('.stack-label').textContent = `${cards.length} stories`;
+
     }
 
     // Fetch and play TTS for sports card
@@ -1451,7 +1418,12 @@
                 if (data.audio && data.card_timings) {
                   currentAudio = new Audio("data:audio/mpeg;base64," + data.audio);
                   audioWave.classList.add('active');
-                  currentAudio.play();
+                  currentAudio.play().then(() => {
+                    console.log('audio playing');
+                  }).catch(e => {
+                    console.error('audio play failed:', e);
+                    audioWave.classList.remove('active');
+                  });
                   currentAudio.onended = () => {
                     audioWave.classList.remove('active');
                     currentAudio = null;
@@ -1528,7 +1500,7 @@
       clearInterval(resultsWaveInterval);
       resetCards();
       resultsWave.classList.remove('hidden');
-      stackEl.classList.remove('visible');
+      
 
       // Reset sports mode
       isSportsMode = false;
@@ -1551,7 +1523,7 @@
     idleScreen.addEventListener('click', startListening);
     closeBtn.addEventListener('click', resetToIdle);
     document.getElementById('overlay-back').addEventListener('click', collapseBack);
-    stackEl.addEventListener('click', collapseBack);
+    
 
     cardDefs.forEach(def => {
       document.getElementById(def.id).addEventListener('click', () => expandCard(def));
