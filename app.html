@@ -467,6 +467,40 @@
       color: rgba(255,255,255,0.9);
       background: rgba(255,255,255,0.06);
     }
+
+    /* ── AUDIO PLAYBACK WAVEFORM ── */
+    #audio-wave {
+      position: fixed;
+      bottom: calc(env(safe-area-inset-bottom, 20px) + 24px);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 2000;
+      pointer-events: none;
+    }
+    #audio-wave.active {
+      opacity: 1;
+    }
+    .audio-bar {
+      width: 2px;
+      height: 8px;
+      background: rgba(255,255,255,0.35);
+      border-radius: 2px;
+      animation: audio-pulse 0.6s ease-in-out infinite alternate;
+    }
+    .audio-bar:nth-child(1) { animation-delay: 0s; }
+    .audio-bar:nth-child(2) { animation-delay: 0.1s; }
+    .audio-bar:nth-child(3) { animation-delay: 0.2s; }
+    .audio-bar:nth-child(4) { animation-delay: 0.3s; }
+    .audio-bar:nth-child(5) { animation-delay: 0.15s; }
+    @keyframes audio-pulse {
+      0% { height: 4px; opacity: 0.3; }
+      100% { height: 14px; opacity: 0.6; }
+    }
   </style>
 </head>
 <body>
@@ -539,6 +573,15 @@
     </div>
   </div>
 
+  <!-- Audio playback waveform indicator -->
+  <div id="audio-wave">
+    <div class="audio-bar"></div>
+    <div class="audio-bar"></div>
+    <div class="audio-bar"></div>
+    <div class="audio-bar"></div>
+    <div class="audio-bar"></div>
+  </div>
+
   <script>
     const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
     const EXPO_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)';
@@ -595,6 +638,8 @@
     const overlayHero = document.getElementById('overlay-hero');
     const overlayBody = document.querySelector('.overlay-body');
     const stackEl = document.getElementById('card-stack');
+    const audioWave = document.getElementById('audio-wave');
+    let currentAudio = null;
 
     // Card colors for overlay backgrounds
     const CARD_COLORS = {
@@ -919,6 +964,13 @@
 
     // Collapse response overlay back to idle
     function collapseResponseOverlay() {
+      // Stop audio if playing
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+        audioWave.classList.remove('active');
+      }
+
       overlayHero.style.transition = 'opacity 0.15s ease';
       overlayBody.style.transition = 'opacity 0.15s ease';
       hideContent();
@@ -1164,6 +1216,17 @@
 
             // Show response in fullscreen overlay
             showResponseOverlay(text, selectedChatName);
+
+            // Play audio if present
+            if (res.ok && data.audio) {
+              currentAudio = new Audio("data:audio/mpeg;base64," + data.audio);
+              audioWave.classList.add('active');
+              currentAudio.play();
+              currentAudio.onended = () => {
+                audioWave.classList.remove('active');
+                currentAudio = null;
+              };
+            }
           } catch (e) {
             clearInterval(resultsWaveInterval);
             showResponseOverlay("Could not reach server.\n\nRun: bash ~/pavano-says/start.sh", selectedChatName);
@@ -1180,6 +1243,13 @@
         return;
       }
       if (expanded) return;
+
+      // Stop audio if playing
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+        audioWave.classList.remove('active');
+      }
 
       clearInterval(waveformInterval);
       clearInterval(resultsWaveInterval);
