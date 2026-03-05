@@ -234,6 +234,47 @@
     #card-e .card-accent { background: rgba(239,68,68,0.6); }
     #card-f .card-accent { background: rgba(14,165,233,0.6); }
 
+    /* Color-based card accents (set via data-color attribute) */
+    .result-card[data-color="orange"] {
+      --card-accent: rgba(255, 140, 0, 0.15);
+      --card-border: rgba(255, 140, 0, 0.3);
+      background: linear-gradient(135deg, rgba(255, 140, 0, 0.18) 0%, rgba(255, 140, 0, 0.06) 100%);
+      border-color: var(--card-border);
+    }
+    .result-card[data-color="orange"] .card-accent { background: rgba(255, 140, 0, 0.7); }
+
+    .result-card[data-color="red"] {
+      --card-accent: rgba(220, 38, 38, 0.15);
+      --card-border: rgba(220, 38, 38, 0.3);
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.18) 0%, rgba(220, 38, 38, 0.06) 100%);
+      border-color: var(--card-border);
+    }
+    .result-card[data-color="red"] .card-accent { background: rgba(220, 38, 38, 0.7); }
+
+    .result-card[data-color="purple"] {
+      --card-accent: rgba(147, 51, 234, 0.15);
+      --card-border: rgba(147, 51, 234, 0.3);
+      background: linear-gradient(135deg, rgba(147, 51, 234, 0.18) 0%, rgba(147, 51, 234, 0.06) 100%);
+      border-color: var(--card-border);
+    }
+    .result-card[data-color="purple"] .card-accent { background: rgba(147, 51, 234, 0.7); }
+
+    .result-card[data-color="blue"] {
+      --card-accent: rgba(59, 130, 246, 0.15);
+      --card-border: rgba(59, 130, 246, 0.3);
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.18) 0%, rgba(59, 130, 246, 0.06) 100%);
+      border-color: var(--card-border);
+    }
+    .result-card[data-color="blue"] .card-accent { background: rgba(59, 130, 246, 0.7); }
+
+    .result-card[data-color="indigo"] {
+      --card-accent: rgba(99, 102, 241, 0.15);
+      --card-border: rgba(99, 102, 241, 0.3);
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.18) 0%, rgba(99, 102, 241, 0.06) 100%);
+      border-color: var(--card-border);
+    }
+    .result-card[data-color="indigo"] .card-accent { background: rgba(99, 102, 241, 0.7); }
+
     .card-body { padding: 0 14px 14px; }
     .card-title {
       font-size: 11px;
@@ -663,14 +704,14 @@
     let sportsCardsData = [];
     let isSportsMode = false;
 
-    // Card definitions - positions for 375px viewport
+    // Card definitions - positions for card-stack (relative to stack origin)
     const cardDefs = [
-      { id: 'card-a', left: 16,  top: 60,  float: 'float-a', dur: '6s',   floatDelay: '0s'   },
-      { id: 'card-b', left: 204, top: 120, float: 'float-b', dur: '7.2s', floatDelay: '0.5s' },
-      { id: 'card-c', left: 16,  top: 250, float: 'float-c', dur: '5.8s', floatDelay: '1s'   },
-      { id: 'card-d', left: 204, top: 320, float: 'float-d', dur: '6.6s', floatDelay: '0.3s' },
-      { id: 'card-e', left: 16,  top: 440, float: 'float-e', dur: '7.8s', floatDelay: '0.8s' },
-      { id: 'card-f', left: 204, top: 510, float: 'float-f', dur: '6.3s', floatDelay: '0.2s' },
+      { id: 'card-a', left: 18,  top: 38,  float: 'float-a', dur: '6s',   floatDelay: '0s'   },
+      { id: 'card-b', left: 162, top: 108, float: 'float-b', dur: '7.2s', floatDelay: '0.5s' },
+      { id: 'card-c', left: 18,  top: 238, float: 'float-c', dur: '5.8s', floatDelay: '1s'   },
+      { id: 'card-d', left: 162, top: 320, float: 'float-d', dur: '6.6s', floatDelay: '0.3s' },
+      { id: 'card-e', left: 18,  top: 430, float: 'float-e', dur: '7.8s', floatDelay: '0.8s' },
+      { id: 'card-f', left: 162, top: 478, float: 'float-f', dur: '6.3s', floatDelay: '0.2s' },
     ];
 
     // Build card inner HTML
@@ -745,6 +786,67 @@
       document.getElementById(def.id).style.animationPlayState = 'running';
     }
 
+    // Depth fly-in animation using WAAPI
+    function depthFlyInCard(def, onComplete) {
+      const c = document.getElementById(def.id);
+      const stackRect = stackEl.getBoundingClientRect();
+
+      // Final position relative to viewport
+      const finalLeft = stackRect.left + def.left;
+      const finalTop = stackRect.top + def.top;
+
+      // Center of viewport (start position)
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+
+      // Calculate offset from center to final position
+      const offsetX = finalLeft - centerX + 75; // 75 = half card width
+      const offsetY = finalTop - centerY + 60;  // 60 = half card height
+
+      // Set up initial state: fixed, centered, tiny
+      c.style.position = 'fixed';
+      c.style.left = '50%';
+      c.style.top = '50%';
+      c.style.transform = 'translate(-50%, -50%) scale(0.08)';
+      c.style.opacity = '0';
+      c.style.zIndex = '100';
+      c.style.animation = '';
+
+      // Animate using WAAPI
+      const animation = c.animate([
+        {
+          transform: 'translate(-50%, -50%) scale(0.08)',
+          opacity: 0
+        },
+        {
+          transform: `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) scale(1)`,
+          opacity: 1
+        }
+      ], {
+        duration: 900,
+        easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        fill: 'forwards'
+      });
+
+      animation.onfinish = () => {
+        // Reset to normal positioning in card-stack
+        c.style.position = '';
+        c.style.left = def.left + 'px';
+        c.style.top = def.top + 'px';
+        c.style.transform = '';
+        c.style.opacity = '1';
+        c.style.zIndex = '';
+
+        // Start float animation
+        startFloat(def);
+
+        if (onComplete) onComplete();
+      };
+
+      return animation;
+    }
+
+    // Legacy flyInCards for non-synced use
     function flyInCards() {
       cardDefs.forEach((def, i) => {
         const c = document.getElementById(def.id);
@@ -752,10 +854,28 @@
         c.style.opacity = '0';
         c.style.transform = '';
         setTimeout(() => {
-          c.style.animation = `fi-in 0.5s ${EASE} both`;
-          c.style.opacity = '1';
-          setTimeout(() => startFloat(def), 550);
-        }, 300 + i * 70);
+          depthFlyInCard(def);
+        }, 300 + i * 150);
+      });
+    }
+
+    // Fly in cards synced to audio timings
+    function flyInCardsWithTimings(timings) {
+      // First hide all cards and make stack visible
+      cardDefs.forEach(def => {
+        const c = document.getElementById(def.id);
+        c.style.opacity = '0';
+        c.style.transform = '';
+        c.style.animation = '';
+      });
+      stackEl.classList.add('visible');
+
+      // Schedule each card fly-in based on timings
+      timings.forEach((timing, i) => {
+        if (i >= cardDefs.length) return;
+        setTimeout(() => {
+          depthFlyInCard(cardDefs[i]);
+        }, timing * 1000);
       });
     }
 
@@ -1202,28 +1322,21 @@
         const el = document.getElementById(cardIds[i]);
         if (!el) return;
 
-        // Get team color
-        let teamColor = DEFAULT_TEAM_COLOR;
-        for (const [team, color] of Object.entries(TEAM_COLORS)) {
-          if (card.team && card.team.toLowerCase().includes(team.toLowerCase())) {
-            teamColor = color;
-            break;
-          }
-        }
-
-        // Update card data attributes
+        // Update card data attributes (including color from API)
         el.dataset.title = card.headline || 'Breaking news';
         el.dataset.src = `${card.team || 'Sports'} · ${card.source || 'News'}`;
         el.dataset.copy = card.summary || '';
         el.dataset.team = card.team || '';
         el.dataset.emoji = card.emoji || '';
+        el.dataset.color = card.color || 'indigo';  // CSS handles styling via [data-color]
 
-        // Apply team color
-        el.style.background = teamColor.bg;
+        // Reset inline background (CSS handles it now via data-color attribute)
+        el.style.background = '';
+        el.style.display = '';
 
-        // Rebuild card inner HTML
+        // Rebuild card inner HTML (accent handled by CSS via data-color)
         el.innerHTML = `
-          <div class="card-accent" style="background: ${teamColor.accent}"></div>
+          <div class="card-accent"></div>
           <div class="card-body">
             <div class="card-title">${card.emoji || ''} ${card.headline || 'Breaking news'}</div>
             <div class="card-src">${card.team || 'Sports'} · ${card.source || 'News'}</div>
@@ -1308,7 +1421,23 @@
                 sportsCardsData = data.cards;
                 populateSportsCards(data.cards);
                 resultsWave.classList.add('hidden');
-                flyInCards();
+
+                // Play audio and sync card fly-ins to timings
+                if (data.audio && data.card_timings) {
+                  currentAudio = new Audio("data:audio/mpeg;base64," + data.audio);
+                  audioWave.classList.add('active');
+                  currentAudio.play();
+                  currentAudio.onended = () => {
+                    audioWave.classList.remove('active');
+                    currentAudio = null;
+                  };
+
+                  // Fly in cards synced to audio timings
+                  flyInCardsWithTimings(data.card_timings);
+                } else {
+                  // Fallback: fly in without audio sync
+                  flyInCards();
+                }
               } else {
                 const errorMsg = data.detail || data.error || "Could not fetch sports news";
                 showResponseOverlay(errorMsg, selectedChatName);
