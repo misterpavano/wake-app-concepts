@@ -757,7 +757,7 @@
     // Depth fly-in animation using WAAPI
     function depthFlyInCard(def, onComplete) {
       const c = document.getElementById(def.id);
-      const stackRect = stackEl.getBoundingClientRect();
+      const stackRect = cardsContainer.getBoundingClientRect();
 
       // Final position relative to viewport
       const finalLeft = stackRect.left + def.left;
@@ -1343,18 +1343,15 @@
       }
     }
 
-    // Unlock audio context on first user gesture (required by mobile browsers)
-    let audioUnlocked = false;
+    // iOS Safari requires audio to be created within a gesture handler
+    // We create a persistent audio element on first tap and reuse it
+    let sharedAudio = null;
     function unlockAudio() {
-      if (audioUnlocked) return;
-      audioUnlocked = true;
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const buf = ctx.createBuffer(1, 1, 22050);
-      const src2 = ctx.createBufferSource();
-      src2.buffer = buf;
-      src2.connect(ctx.destination);
-      src2.start(0);
-      ctx.resume();
+      if (sharedAudio) return;
+      sharedAudio = new Audio();
+      sharedAudio.src = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAABAAADQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAyAAAAFAAAABQAAAAUAAAAFAAAABQAAAAUAAAAFAAAABQAAAAUAAAAFAAAABQAAAAUAAAAFAAAABQAAAAUA';
+      sharedAudio.volume = 0;
+      sharedAudio.play().catch(()=>{});
     }
 
     // Flow: IDLE → LISTENING → THINKING → RESULTS
@@ -1416,7 +1413,9 @@
 
                 // Play audio and sync card fly-ins to timings
                 if (data.audio && data.card_timings) {
-                  currentAudio = new Audio("data:audio/mpeg;base64," + data.audio);
+                  currentAudio = sharedAudio || new Audio();
+                  currentAudio.src = "data:audio/mpeg;base64," + data.audio;
+                  currentAudio.volume = 1;
                   audioWave.classList.add('active');
                   currentAudio.play().then(() => {
                     console.log('audio playing');
