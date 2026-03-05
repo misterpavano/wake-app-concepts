@@ -1376,8 +1376,23 @@
       }
     }
 
+    // Unlock audio context on first user gesture (required by mobile browsers)
+    let audioUnlocked = false;
+    function unlockAudio() {
+      if (audioUnlocked) return;
+      audioUnlocked = true;
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const buf = ctx.createBuffer(1, 1, 22050);
+      const src2 = ctx.createBufferSource();
+      src2.buffer = buf;
+      src2.connect(ctx.destination);
+      src2.start(0);
+      ctx.resume();
+    }
+
     // Flow: IDLE → LISTENING → THINKING → RESULTS
     function startListening() {
+      unlockAudio();
       showScreen('listen');
       listenText.textContent = 'listening...';
 
